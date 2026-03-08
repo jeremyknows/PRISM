@@ -1,165 +1,165 @@
-# Example PRISM Review: Option C Architecture Decision
+# Example PRISM v2 Review: Option C Architecture Decision
 
-Real review from February 2026 — evaluating a security architecture simplification.
+Real review from March 2026 — second PRISM review of this topic, demonstrating v2 memory features.
 
-## Context
+## Review Setup
 
-**Decision:** Move agent overlays from runtime files to codebase (Option C)
-**Trade-off:** Less flexibility for massive simplification (~5,000 lines removed)
-**Stakes:** Security model, forward compatibility, developer experience
+**Topic slug:** `option-c-architecture`
+**Review #:** 2
+**Prior reviews found:** 1 (2026-02-15 — APPROVE WITH CONDITIONS)
+
+**Prior Findings Brief sent to Security, Performance, Simplicity, Integration:**
+```
+## Prior Reviews on This Topic
+- 2026-02-15: APPROVE WITH CONDITIONS. Simplified trust model from runtime to codebase overlays.
+
+## Open Findings (verify if fixed)
+1. Malicious code merge risk — no automated security scanning. Flagged 1 time.
+2. Lost runtime audit logging for file access patterns. Flagged 1 time.
+```
+
+**Devil's Advocate received:** Subject + context only. No prior findings (blind by design).
 
 ---
 
 ## Security Auditor
 
-### Risk Assessment: MEDIUM
+### Prior Finding Status
+1. **Malicious code merge risk** — STILL OPEN. No automated security scanning added since Feb 15. Escalating severity from MEDIUM to HIGH.
+2. **Lost audit logging** — FIXED. Commit `a3f7e2c` added file access logging to session middleware (`src/middleware/audit.ts`, lines 12-45).
 
-Different trade-offs, not definitively worse or better.
+### New Findings
+1. **[src/overlays/loader.ts:23] Path traversal in overlay loading** — Severity: HIGH
+   - Code: `const path = join(OVERLAY_DIR, req.params.name)`
+   - `req.params.name` is unsanitized — `../../etc/passwd` traversal possible
+   - Fix: `const safe = basename(req.params.name); const path = join(OVERLAY_DIR, safe);`
 
-### Attack Vectors Identified
+2. **[package.json] No `npm audit` in CI** — Severity: MEDIUM
+   - Fix: Add `"pretest": "npm audit --audit-level=high"` to scripts
 
-1. **Malicious Code Merge** - Severity: HIGH
-   - Attacker compromises contributor account
-   - Malicious overlay merged into codebase
-   - Mitigation: Code review, automated security scans, signed commits
-
-2. **Workspace File Injection** - Severity: MEDIUM
-   - User files (SOUL.md, USER.md) still editable
-   - Could inject commands if validation fails
-   - This risk exists in BOTH architectures
-
-3. **Installation Directory Tampering** - Severity: LOW
-   - Requires elevated privileges
-   - Standard OS protections apply
-
-### Security Guarantees Lost
-- Runtime validation that isolated sessions can't read MEMORY.md
-- Enforcement that cron jobs write to daily memory only
-- Audit logging of file access patterns
-
-### Security Guarantees Gained
-- Git audit trail for all overlay changes
-- Code review before changes go live
-- Simpler trust boundary (less attack surface)
-
-### Verdict: APPROVE WITH CONDITIONS
-Conditions: Strong code review process, automated security scans
+### Verdict: NEEDS WORK
+Prior critical finding (automated scanning) still unresolved after 1 month. New path traversal is HIGH severity.
 
 ---
 
 ## Performance Analyst
 
-### Token Impact
-- Current: ~4,900 tokens (base + overlay + policy)
-- Option C: ~4,400 tokens (base + overlay)
-- **Savings: ~500 tokens (10% reduction)**
+### Prior Finding Status
+No performance findings in prior review — N/A.
 
-### Latency Impact
-| Operation | Current | Option C | Delta |
-|-----------|---------|----------|-------|
-| Session start | 20-30ms | 15-20ms | -5 to -10ms |
-| Policy check | 2ms | 0ms | -2ms |
+### New Findings
+1. **[src/overlays/loader.ts:15-30] Overlay loading is synchronous** — Severity: MEDIUM
+   - Measured: `fs.readFileSync` blocks event loop for 12-45ms per overlay
+   - At 10 overlays: 120-450ms startup penalty
+   - Fix: `const data = await fs.promises.readFile(overlayPath);` (3 lines changed)
 
-### Memory Footprint
-- Current: ~2.6MB (policy engine + cache)
-- Option C: 0MB
-- **Savings: ~2.6MB**
+2. **[benchmarks/startup.js] No baseline measurement exists** — Severity: LOW
+   - Can't measure regression without a baseline
+   - Fix: `node benchmarks/startup.js > benchmarks/baseline-2026-03.json`
 
-### Verdict: APPROVE
-Modest gains, real win is simplicity not raw performance.
+### Verdict: APPROVE WITH CONDITIONS
+No prior performance issues. New findings are MEDIUM and LOW — fixable without blocking.
 
 ---
 
 ## Simplicity Advocate
 
-### Complexity Removed
-- 4,729 lines of enforcement code eliminated
-- 250-line file-policy.yml gone
-- LRU caching layer unnecessary
-- Audit logging infrastructure removed
+### Prior Finding Status
+1. **Lost audit logging** — FIXED (confirmed `audit.ts` exists, 45 lines).
 
-### Simplification Opportunities
-Could go further: consolidate overlays into single file with conditional sections.
+### New Findings
+1. **[src/overlays/] 3 loader variants, only 1 used** — Severity: MEDIUM
+   - `loader.ts` (active), `loader-legacy.ts` (dead), `loader-v2.ts` (dead)
+   - Fix: `rm src/overlays/loader-legacy.ts src/overlays/loader-v2.ts`
 
-### Essential vs Cuttable
-**Essential:** Session detection, base AGENTS.md, workspace file loading
-**Cuttable:** Policy CLI tools, validation scripts, hot-reload
-
-### Verdict: SIMPLIFY FURTHER
-(Rejected by consensus — modularity worth keeping)
+### Verdict: APPROVE WITH CONDITIONS
+Clean codebase, one dead code removal needed.
 
 ---
 
 ## Integration Engineer
 
-### Implementation Effort: 6-8 hours
-- Move overlays to config directory: 1 hour
-- Update loader: 2 hours
-- Migration tool: 2 hours
-- Testing: 2-3 hours
+### Prior Finding Status
+1. **Malicious code merge** — STILL OPEN. Confirmed no security scanning in CI pipeline (`grep -r "audit\|snyk\|semgrep" .github/workflows/` returns empty).
 
-### Migration Strategy
-- Phase 1: Parallel support (2 weeks)
-- Phase 2: Migration tool
-- Phase 3: Hard cutover
+### New Findings
+1. **[.github/workflows/ci.yml] No overlay validation step** — Severity: MEDIUM
+   - New overlays merged without format validation
+   - Fix: Add step: `node scripts/validate-overlays.js` before test step
 
 ### Verdict: APPROVE WITH CONDITIONS
-Conditions: Migration tool, excellent docs, 2-week transition
+Migration complete. CI gap is straightforward to fix.
 
 ---
 
-## Devil's Advocate
+## Devil's Advocate (Blind — no prior findings)
 
-### Fatal Flaws: None identified
+### Findings
+1. **We're still trusting the codebase as the single point of truth** — Severity: HIGH
+   - If the codebase is compromised, all overlays are compromised
+   - No out-of-band verification exists
+   - Quote from `docs/security-model.md`: "Overlays are trusted because they pass code review" — this is circular reasoning. Code review IS the attack vector.
 
-### Hidden Costs
-- **Developer Friction:** Contributors need to edit install dir or run from source
-- **Fork Proliferation:** Heavy customizers will fork OpenClaw
-- **Testing Burden:** Overlays now require CI/CD testing
+2. **The 5,000-line reduction feels like the argument, not a measurement** — Severity: MEDIUM
+   - "We removed 5,000 lines" is presented as proof of improvement
+   - But complexity != lines of code. The remaining code handles MORE responsibility with LESS surface area for auditing
+   - What's the cyclomatic complexity before vs after? Nobody measured.
 
-### Optimistic Assumptions
-1. "We don't need runtime hotswapping" — What about production crisis?
-2. "Code review catches malicious PRs" — What if reviewer misses it?
-3. "Users customize via SOUL.md/USER.md" — What if they need session-specific changes?
+3. **6-month regret:** We'll wish we had runtime override capability when a critical hotfix needs to bypass code review.
 
-### 6-Month Regrets
-- Compliance audit trails may need rebuilding
-- Dynamic policy changes go from minutes to hours
-- Experimentation friction kills innovation
-
-### Rebuttal
-**Why Option C might be WRONG:**
-- We're replacing a technical control with a process control
-- Process controls fail more often
-- We're making OpenClaw less hackable
-
-### Verdict: APPROVE WITH CONDITIONS (skeptical)
-Conditions: Escape hatch for power users, monitor for fork proliferation
+### Verdict: APPROVE WITH CONDITIONS
+The architecture is sound. The DA's role was to stress-test assumptions — the circular trust concern is real but acceptable given the alternative (runtime file injection was worse). Document the trade-off explicitly.
 
 ---
 
-## PRISM Synthesis
+## PRISM v2 Synthesis — option-c-architecture
+
+**Review #:** 2
+**Reviewers:** Security (NEEDS WORK), Performance (AWC), Simplicity (AWC), Integration (AWC), Devil's Advocate (AWC)
+**Prior reviews found:** 1 (2026-02-15)
+
+### New Findings
+
+**Tier 1 (cross-validated):**
+- **Automated security scanning still missing** — Security + Integration both confirmed independently. `grep -r "audit\|snyk\|semgrep" .github/workflows/` returns empty. This is now flagged 2x, escalating.
+
+**Tier 2 (single reviewer, cited):**
+- Path traversal in `overlay/loader.ts:23` (Security) — unsanitized `req.params.name`
+- Synchronous file loading blocking event loop 12-45ms (Performance)
+- 2 dead loader files (Simplicity)
+- Missing overlay validation in CI (Integration)
+- Circular trust reasoning in security model (Devil's Advocate)
+
+### Progress Since Last Review
+- ✅ Audit logging added (`src/middleware/audit.ts`, 45 lines, commit `a3f7e2c`)
+
+### Still Open (Escalated)
+1. **Automated security scanning** — flagged 2 times (2026-02-15, 2026-03-15). No CI scanning of any kind. Escalation: must be resolved before next release.
 
 ### Consensus Points
-- ✅ Option C eliminates significant complexity (~5,000 lines)
-- ✅ Security trade-off is acceptable
-- ✅ Performance gains are modest but real
-- ✅ Implementation is feasible (6-8 hours)
+- Architecture simplification was correct — all 5 reviewers validated the direction
+- Code review as trust boundary is acceptable (DA raised concern, acknowledged trade-off)
 
 ### Contentious Points
-- **User Customization:** Simplicity Advocate says most don't need it; Devil's Advocate warns of fragmentation
-- **Runtime Flexibility:** Integration Engineer says restart is fine; Devil's Advocate warns about production hotfixes
+- **Security NEEDS WORK vs 4x AWC** — Security's verdict is driven by the 2x-flagged scanning gap plus the new path traversal. These are concrete, fixable issues — not an architecture disagreement.
+- **DA's circular trust concern** — valid theoretical risk, but runtime injection (v1) was worse. Documenting the trade-off is sufficient.
+
+### Conflict Resolution
+Siding with Security on the final verdict. The scanning gap has been flagged twice with no action — that crosses the "governance problem" threshold. Path traversal is a genuine HIGH finding with a 1-line fix. Both are concrete and immediately actionable.
+
+### Limitations
+1. **No load testing under concurrent overlay requests** — would take: 2 hours with k6 or artillery
+2. **No review of the overlay schema itself** — format validation was flagged but schema correctness wasn't examined
+3. **No accessibility review** — overlays may affect UI rendering; not covered in this review
 
 ### Final Verdict
-**APPROVE WITH CONDITIONS** (75% confidence)
+**NEEDS WORK** (70% confidence)
 
-**Conditions:**
-1. Add escape hatch for power users (config override system)
-2. Keep overlay modularity (reject "one file" proposal)
-3. Build migration tool with 2-week transition
-4. Document security model explicitly
-5. 6-month evaluation checkpoint
+Driven by: 2x-escalated scanning gap + new path traversal finding. Fix both (estimated 1-2 hours), then this is APPROVE.
 
----
-
-*Note: Devil's Advocate's "simplicity trap" concern — "replacing technical control with process control" — led to adding automated security scans as a mandatory condition. This is the value of adversarial review.*
+### Conditions
+1. Fix path traversal in `src/overlays/loader.ts:23`: `const safe = basename(req.params.name);`
+2. Add security scanning to CI: `npm audit --audit-level=high` as pretest script
+3. Remove dead files: `rm src/overlays/loader-legacy.ts src/overlays/loader-v2.ts`
+4. Convert synchronous reads to async: `fs.promises.readFile` in loader.ts
+5. Document the trust model trade-off explicitly in `docs/security-model.md`

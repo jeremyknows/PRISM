@@ -1,36 +1,57 @@
-# PRISM 🔮
+# PRISM v2 🔮
 
 **Parallel Review by Independent Specialist Models**
 
-Multi-agent review protocol that eliminates confirmation bias through structured adversarial analysis.
+Multi-agent review protocol that eliminates confirmation bias through structured adversarial analysis. v2 adds **memory** — the system learns from its own review history.
 
 ## What It Does
 
 - 🔒 Deploys 5+ specialist reviewers in parallel (Security, Performance, Simplicity, Integration, Devil's Advocate)
+- 🧠 **Remembers** — searches for prior reviews on the same topic, tracks what was fixed
 - 🎯 Surfaces disagreements as the most valuable signal
-- 😈 Uses Devil's Advocate to catch assumptions and "6-month regrets"
-- 📊 Synthesizes findings into actionable decisions with confidence levels
+- 😈 Devil's Advocate reviews **blind** — no prior findings, guaranteed independence
+- 📋 Requires evidence — every finding must cite a specific file, line, or command output
+- 🔧 Findings include shell commands or file paths — actionable, not just advisory
 - ⚡ Works with parallel subagents OR sequential single-agent review
 
-## The Core Insight
+## The Core Insights
 
 > "Disagreements are MORE valuable than consensus."
 
-When 4/5 reviewers agree and 1 dissents, pay attention to that dissent. The tension is where truth lives.
+When 4/5 reviewers agree and 1 dissents, pay attention to that dissent.
+
+> "Findings without evidence are noise."
+
+Every finding must cite a specific file. Assertions without citations are lowest priority.
+
+> "A finding flagged 3 times tells you about governance, not about the code."
+
+PRISM v2 tracks how many times a finding appears — repeat findings escalate automatically.
+
+## What's New in v2
+
+| Feature | v1 | v2 |
+|---------|----|----|
+| Prior review awareness | None — starts fresh every time | Searches for prior reviews, injects open findings |
+| Devil's Advocate | Receives same context as others | **Structurally blind** to prior findings |
+| Evidence requirement | Optional | **Mandatory** — cite files or it's deprioritized |
+| Verdict scale | APPROVE / AWC / REJECT | + **NEEDS WORK** (fixable but not shippable) |
+| Findings format | General observations | Must include specific fix (command or file path) |
+| Synthesis | Flat list of findings | Evidence hierarchy (Tier 1/2/3) + Limitations section |
+| History | No archive | Searchable archive in `analysis/prism/archive/<slug>/` |
+| Governance | Manual tracking | `--governance` flag for Stuck Findings |
+| Verification | Trust claims at face value | **Verification Auditor** role (Extended mode) |
 
 ## Install
 
-### Claude Code / OpenClaw
+### OpenClaw / Claude Code
 
 ```bash
 # Clone to your skills directory
 git clone https://github.com/jeremyknows/PRISM.git ~/.openclaw/skills/prism
-
-# Or add to CLAUDE.md
-echo "Skill: ~/.openclaw/skills/prism/SKILL.md" >> CLAUDE.md
 ```
 
-### Cursor / Other Agents
+### Other Agents (Cursor, Windsurf, etc.)
 
 ```bash
 git clone https://github.com/jeremyknows/PRISM.git
@@ -39,192 +60,114 @@ git clone https://github.com/jeremyknows/PRISM.git
 
 ## Usage
 
-### Quick Start
-
-Just ask your agent:
-
-| Want This | Say This |
-|-----------|----------|
-| Budget check (3 agents) | "Budget PRISM" or "PRISM lite" |
-| Standard review (5 agents) | "Run PRISM" or "PRISM review" |
-| Deep audit (9 agents) | "Full PRISM audit" or "Extended PRISM" |
-
-**Model override:** Add `--opus` for critical decisions, `--haiku` for fast checks (default: Sonnet)
-
-### Examples
+Just say it:
 
 ```
-"Budget PRISM on this API change"
-
-"PRISM review on this architecture decision"
-
-"Full PRISM audit — we're about to ship this to production"
-
-"PRISM --opus on this auth flow" (uses Opus for extra rigor)
+"PRISM this API change"
+"Budget PRISM on the auth flow"
+"Full PRISM audit on the deployment pipeline"
 ```
 
-### Structured Request
+| Mode | Agents | Cost (Sonnet) |
+|------|--------|---------------|
+| **Budget** | 3 (Security + Performance + Devil's Advocate) | ~$0.30-0.50 |
+| **Standard** | 5 (+ Simplicity + Integration) | ~$0.50-1.00 |
+| **Extended** | 7+ (+ Code Reviewers + Verification Auditor) | ~$1.50-2.50 |
 
-For complex reviews, provide context:
+### Options
 
-```markdown
-## PRISM Review Request
+- `--opus` — Use Opus model for all reviewers (2-3x cost, for critical decisions)
+- `--haiku` — Use Haiku model (fast/cheap, for quick sanity checks)
+- `--governance` — Surface Stuck Findings (issues flagged 3+ times without resolution)
 
-**Mode:** Standard
-**Subject:** REST to GraphQL migration
-**Context:** Currently serving 10K req/day, team has GraphQL experience
-**Focus:** Performance implications and migration complexity
-```
-
-## The Reviewers
-
-| Reviewer | Focus | Key Question |
-|----------|-------|--------------|
-| 🔒 Security Auditor | Attack vectors, trust boundaries | "How could this be exploited?" |
-| ⚡ Performance Analyst | Metrics, benchmarks | "Show me the numbers" |
-| 🎯 Simplicity Advocate | Complexity reduction | "What can we remove?" |
-| 🔧 Integration Engineer | Compatibility, migration | "How does this fit?" |
-| 😈 Devil's Advocate | Assumptions, risks | "What are we missing?" |
-
-## Pro Tips
-
-1. **Devil's Advocate is the most valuable reviewer.** If they approve with no conditions, you probably haven't thought it through.
-
-2. **"6-month regrets" is the killer question.** Forces thinking beyond immediate benefits.
-
-3. **Numbers beat vibes.** Performance Analyst grounds the discussion in reality.
-
-4. **Technical controls > Process controls.** Devil's Advocate catches when you're trading enforcement for trust.
-
-## When to Use PRISM
-
-**High value:**
-- Architecture decisions (irreversible, high stakes)
-- Security-sensitive changes
-- Major refactors (>1000 lines)
-- Policy/role card validation
-- Open source releases
-- Decisions you'll live with for 6+ months
-
-**When NOT to use PRISM:**
-- ❌ Minor bug fixes (overkill)
-- ❌ Documentation typos (just fix them)
-- ❌ Cosmetic/UI tweaks (unless user-facing and high-traffic)
-- ❌ Urgent hotfixes (time matters more than thoroughness)
-- ❌ Decisions that are easily reversible (just try it)
-- ❌ When you already know the answer (don't seek validation theater)
-
-**The "reversibility test":** If you can easily undo this decision in a week, skip PRISM. If undoing it requires significant effort or causes user pain, run PRISM.
-
-## Cost Estimate
-
-| Approach | Sonnet (default) | Opus (--opus) |
-|----------|------------------|---------------|
-| **Budget** (3 specialists) | ~$0.30-0.50 | ~$1.00-1.50 |
-| **Standard** (5 specialists) | ~$0.50-1.00 | ~$2.00-3.00 |
-| **Extended** (9 agents) | ~$1.50-2.00 | ~$5.00-7.00 |
-
-**Budget Mode** runs Security + UX/Accessibility + Performance only — catches ~80% of high-impact issues at 60% cost. Security is MANDATORY and cannot be skipped.
-
-**Two-round audit** (recommended): Double the time, 3x the coverage. Round 2 finds issues Round 1 misses.
-
-The cost of a missed security flaw is 10-100x higher.
-
-## Done Criteria
-
-Stop auditing when:
-- ✅ No CRITICAL or HIGH issues remaining
-- ✅ Re-audit finds < 3 new issues
-- ✅ Remaining items are all LOW priority
-
-## Example Output
-
-```markdown
-## PRISM Synthesis
-
-### Consensus Points
-- All reviewers agree the simplification is valuable
-- Security model is acceptable with mitigations
-
-### Contentious Points  
-- Devil's Advocate: "We're replacing technical control with process control"
-- Simplicity vs Security tension on audit logging
-
-### Conflict Resolution
-Security Auditor approved with conditions; Devil's Advocate raised concerns
-but no REJECT. Siding with majority, incorporating Devil's concerns as
-condition #1 (automated scanning addresses their "process control" worry).
-
-### Final Verdict
-APPROVE WITH CONDITIONS (75% confidence)
-
-Conditions:
-1. Add automated security scanning (addresses Devil's Advocate concern)
-2. Document the trust model explicitly
-3. Plan for future audit logging if needed
-```
-
-## File Structure
+## How It Works
 
 ```
-prism/
-├── SKILL.md        # Main skill instructions
-├── LICENSE.txt     # MIT license
-├── README.md       # This file
-└── references/
-    └── example-review.md  # Full review transcript
+1. You say "PRISM this"
+2. Orchestrator derives topic slug (e.g., api-authentication-redesign)
+3. Searches for prior PRISM reviews on that topic
+4. Spawns reviewers in parallel:
+   - Security, Performance, Simplicity, Integration get prior findings
+   - Devil's Advocate reviews BLIND (no prior findings — by design)
+5. Each reviewer reads files, cites evidence, proposes specific fixes
+6. Orchestrator synthesizes: Tier 1 (cross-validated) → Tier 2 (cited) → Tier 3 (uncited)
+7. Archives the synthesis for future reviews
 ```
 
-## Security
+**First run:** No prior findings exist. PRISM runs like v1 but with evidence requirements. No empty sections, no confusion.
 
-PRISM is a review protocol, not a code execution tool. It:
-- Does not execute arbitrary code
-- Does not access external systems
-- Only reads what you provide for review
+**Subsequent runs:** Prior findings are injected. Reviewers verify what's fixed and hunt for what's new. The Devil's Advocate stays blind — their independence is the control group.
 
-## Limitations
+## Evidence Hierarchy
 
-- Requires agent with sufficient context window for full review
-- Parallel execution requires subagent spawning capability
-- Quality depends on reviewer prompts (provided in SKILL.md)
-- Not a replacement for human review — an enhancement
+| Tier | Definition | Action |
+|------|-----------|--------|
+| **Tier 1** | 2+ reviewers found independently, citing different files | Act immediately |
+| **Tier 2** | Single reviewer, specific file/line citation | High confidence |
+| **Tier 3** | Single reviewer, no citation | Verify before acting |
+
+## Verdict Scale
+
+| Verdict | Meaning |
+|---------|---------|
+| **APPROVE** | Clean — no issues, prior issues resolved |
+| **APPROVE WITH CONDITIONS** | New issues found, none critical |
+| **NEEDS WORK** | Fixable but not shippable — prior criticals still open, or significant new issues |
+| **REJECT** | Fundamental problems — requires rethink |
 
 ## Anti-Patterns
 
 **Don't:**
 - ❌ Let reviewers see each other's findings (groupthink)
-- ❌ Ask reviewers to "find everything" (noise)
+- ❌ Give Devil's Advocate the Prior Findings Brief (breaks independence)
+- ❌ Accept findings without file citations (noise)
 - ❌ Skip synthesis (raw findings aren't actionable)
+- ❌ Ask reviewers to "find everything" (overwhelms)
 
 **Do:**
 - ✅ Spawn reviewers in parallel (independent perspectives)
 - ✅ Give each reviewer narrow focus (depth > breadth)
-- ✅ Iterate if >50 issues found (refine scope)
+- ✅ Require citations in every finding
+- ✅ Archive every synthesis
+- ✅ Run two rounds for important decisions
 
-## Red Flags
+## Optional: Search-Enhanced Context
 
-| Sign | Problem | Fix |
-|------|---------|-----|
-| All reviewers find same issues | Not diverse enough | Sharpen role distinctions |
-| >100 issues found | Scope too broad | Narrow review target |
-| Vague findings | Prompts too generic | Add specific focus questions |
-| Zero disagreements | Possible groupthink | Check reviewer independence |
+If your environment has [qmd](https://github.com/tobilu/qmd) or similar search tools, reviewers can forage for their own context:
+
+```bash
+# Reviewers search for relevant context instead of being hand-fed files
+qmd search "authentication rate limiting" -n 5
+```
+
+PRISM works without search tools — they just improve context precision and reduce token cost.
 
 ## Troubleshooting
 
-| Issue | Cause | Fix |
-|-------|-------|-----|
-| Reviews too shallow | Insufficient context | Provide more background in request |
-| All reviewers agree | Topic too simple | PRISM may be overkill for this |
-| Devil's Advocate has no concerns | Suspiciously perfect | Re-run with "find something wrong" |
-| Takes too long | Sequential execution | Use parallel subagents if available |
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| All reviewers find same issues | Roles not distinct enough | Sharpen role prompts |
+| >100 issues found | Scope too broad | Narrow the review target |
+| Vague findings | Missing evidence requirement | Enforce citation rules |
+| DA has no concerns | Topic too simple or DA too soft | Re-run: "find something wrong" |
+| Same finding appears 3+ times | Governance gap, not review gap | Enable `--governance` |
+
+## Development
+
+Validated through 10 PRISM reviews across 2 rounds (eating our own cooking). Key design decisions:
+
+- **DA blindness** — Security + DA + Simplicity all independently flagged anchoring risk. Resolution: DA is structurally blind, not optionally blind.
+- **Evidence requirement** — Pattern Fidelity reviewer analyzed 106 real PRISM reviews. Finding: run-05 (highest quality) cited specific files in every finding. Mediocre reviews were assertion-based.
+- **"Just works" default** — UX reviewer walked the first-run journey. Finding: empty sections look broken. Resolution: conditional rendering, omit history sections when no prior reviews exist.
 
 ## Contributing
 
 PRs welcome! Especially:
+
 - New reviewer perspectives
 - Example reviews from real usage
 - Integration guides for other agents
+- Evidence of v2 memory improving review quality over time
 
 ## License
 
@@ -232,4 +175,4 @@ MIT — See [LICENSE.txt](LICENSE.txt)
 
 ---
 
-*"The specialists optimize. The Devil protects you from yourself."*
+*"The specialists optimize. The Devil protects you from yourself. The archive remembers what you forgot."*
