@@ -1,4 +1,7 @@
-# PRISM Changelog
+## v2.0.1 (2026-03-13)
+
+### Fixes
+- Removed internal `SKILL-v1.md` archive from published package
 
 ## v2.0.0 (2026-03-08)
 

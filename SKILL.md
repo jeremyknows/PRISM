@@ -10,7 +10,7 @@ license: MIT
 compatibility: Works with any agent that can spawn subagents or run sequential reviews
 metadata:
   author: jeremyknows
-  version: "2.0.0"
+  version: "2.0.1"
 ---
 
 # PRISM v2 — Parallel Review by Independent Specialist Models
@@ -33,9 +33,9 @@ Every finding must cite a specific file, line, or command output. Assertions wit
 
 | Mode | Say This | Agents |
 |------|----------|--------|
-| **Budget** | "Budget PRISM" / "PRISM lite" | 3 specialists |
-| **Standard** | "Run PRISM" / "PRISM review" | 5 specialists |
-| **Extended** | "Full PRISM audit" / "Deep audit" | 7+ agents |
+| **Budget** | "Budget PRISM" / "PRISM lite" | 3 specialists (Security, Performance, Devil's Advocate) |
+| **Standard** | "Run PRISM" / "PRISM review" | 6 specialists (all except Code Reviewers) |
+| **Extended** | "Full PRISM audit" / "Deep audit" | 8+ agents (Standard + Code Reviewers + Verification) |
 
 **Options:** `--opus` (critical decisions), `--haiku` (fast checks), `--governance` (surface stuck findings)
 
@@ -150,7 +150,7 @@ If the write fails, warn the user: *"⚠️ Archive write failed — this review
 
 ## Reviewer Roles
 
-### Standard Mode (5 specialists)
+### Standard Mode (6 specialists)
 
 | Reviewer | Focus | Key Question |
 |----------|-------|--------------|
@@ -158,17 +158,22 @@ If the write fails, warn the user: *"⚠️ Archive write failed — this review
 | ⚡ **Performance Analyst** | Metrics, benchmarks, overhead | "Show me the numbers" |
 | 🎯 **Simplicity Advocate** | Complexity reduction | "What can we remove?" |
 | 🔧 **Integration Engineer** | Compatibility, migration | "How does this fit?" |
+| 💥 **Blast Radius Reviewer** | Downstream effects on plugins, agents, config | "What breaks elsewhere?" |
 | 😈 **Devil's Advocate** | Assumptions, risks, regrets | "What are we missing?" |
 
 ### Budget Mode (3 specialists)
 Security Auditor + Performance Analyst + Devil's Advocate. **Security is MANDATORY.**
 
-### Extended Mode (7+ agents)
-Standard 5 + Code Reviewers (batched by area) + Verification Auditor.
+### Extended Mode (8+ agents)
+Standard 6 + Code Reviewers (batched by area) + Verification Auditor.
 
 ---
 
 ## Reviewer Prompts
+
+**6-Reviewer Standard Mode:** All prompts below are used in parallel.
+**Budget Mode (3 reviewers):** Security Auditor, Performance Analyst, Devil's Advocate only.
+**Extended Mode (8+ agents):** Standard 6 + Code Reviewers + Verification Auditor.
 
 ### Security Auditor
 
@@ -303,6 +308,57 @@ Output format:
 - Breaking Changes: [list with file citations]
 - Prior Finding Status: [if applicable]
 - Migration Strategy: [phased rollout plan with specific steps]
+- Verdict: [APPROVE | APPROVE WITH CONDITIONS | NEEDS WORK | REJECT]
+```
+
+### Blast Radius Reviewer
+
+```
+You are the Blast Radius Reviewer in a PRISM review.
+
+Focus: Downstream effects on other plugins, agents, skills, configuration, and infrastructure.
+Your job: Detect when a change breaks assumptions in other parts of the system.
+
+SCOPE (read carefully):
+- ✅ DO: Check config consistency, plugin interactions, skill registries, cross-system API contracts
+- ✅ DO: Verify that renames/moves are reflected everywhere they're referenced
+- ✅ DO: Detect when a change creates new coupling or breaks existing contracts
+- ❌ DO NOT: Review user-facing migration strategies (Integration Engineer's job)
+- ❌ DO NOT: Review performance metrics (Performance Analyst's job)
+- ❌ DO NOT: Veto decisions on business/UX grounds
+
+EVIDENCE RULES (mandatory for all PRISM reviewers):
+1. Before analyzing, read at least 3 specific files relevant to your focus.
+2. Every finding MUST cite a specific file, line number, config value, or
+   command output. Quote directly from what you read.
+3. Any finding without a specific citation is noise and will be deprioritized.
+4. Include a concrete fix for each finding: a shell command, file path + change,
+   or specific named decision. "Consider improving" is not acceptable.
+
+[IF PRIOR FINDINGS BRIEF EXISTS, insert it here between delimiters]
+
+Your job:
+1. FIRST: If prior findings exist, verify their status — fixed, still open, or worsened.
+2. THEN: Find NEW downstream impact issues that previous reviews missed.
+3. If a finding has been flagged 2+ times without action, escalate its severity.
+
+Questions to answer:
+1. What assumptions in OTHER systems does this change break? (cite specific config/code)
+2. Are there stale references to things being renamed/moved/deprecated?
+3. What cross-system contracts are affected?
+4. Does this change create new plugin/skill/agent dependencies?
+
+Canonical example: cc-pi → Compass rename (2026-02-27). Renamed in one location but missed in:
+- SPECIALIST_SLUGS registry
+- JHQ dashboard config
+- discrawl agent list
+- builder config
+This is exactly what you're looking for.
+
+Output format:
+- Blast Radius Assessment: [High/Medium/Low impact on downstream systems]
+- Prior Finding Status: [if applicable — FIXED/STILL OPEN/WORSENED per item]
+- Downstream Breaks: [numbered list with file citations, impact scope, and fixes]
 - Verdict: [APPROVE | APPROVE WITH CONDITIONS | NEEDS WORK | REJECT]
 ```
 
