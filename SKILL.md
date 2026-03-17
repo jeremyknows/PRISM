@@ -387,6 +387,7 @@ Questions to answer:
 2. What will we regret in 6 months?
 3. What's the strongest argument AGAINST this decision?
 4. What are we not seeing?
+5. What user-facing metric would prove this change works? If that metric doesn't exist, should it?
 
 Output format:
 - Fatal Flaws: [if any — with evidence]
@@ -516,6 +517,14 @@ outranks a Tier 3 finding from Security.]
 ### Limitations
 [Top 3 things this review did NOT measure. For each: what it would
 take to cover it. These become inputs for the next review.]
+
+### User-Facing Impact
+[Required in every synthesis. Answer all three:]
+1. **What user outcome does this review affect?** (e.g., "faster debugging", "fewer escalations", "lower cost per session") — be specific.
+2. **Is that outcome currently measured?** YES / NO / PARTIAL — if YES, cite the data source and current value. If NO, estimate effort to instrument (hours).
+3. **Next cycle recommendation:** Should a dedicated UX outcome angle be added for this topic? YES / NO — one sentence of reasoning.
+
+[If no user-facing outcome is affected, state that explicitly: "This change is infrastructure-only with no direct user impact."]
 
 ### Final Verdict
 [APPROVE | AWC | NEEDS WORK | REJECT]
