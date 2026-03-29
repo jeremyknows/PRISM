@@ -146,11 +146,12 @@ Save the synthesis:
 ```bash
 mkdir -p "$WORKSPACE/analysis/prism/archive/<topic-slug>/"
 # Save as: YYYY-MM-DD-review.md
-# Emit completion — MUST pass originating thread/channel ID so completion routes back
-bash ~/.openclaw/scripts/sub-agent-complete.sh "prism-<slug>" "na" "PRISM review of <slug> complete" "<originating_thread_or_channel_id>"
+# Optional: emit completion signal for your runtime
+# OpenClaw: bash ~/.openclaw/scripts/sub-agent-complete.sh "prism-<slug>" "na" "PRISM review complete" "<originating_channel_id>"
+# CC/Cowork: completion is implicit — the synthesis output IS the result
 ```
 
-**Important:** The 4th argument (thread/channel ID) routes the completion notice back to where the PRISM was requested. Without it, the requester never sees the synthesis. Use the Discord channel or thread ID where the PRISM was initiated.
+**Note:** In OpenClaw, pass the originating thread/channel ID so the completion routes back to the requester. In other runtimes, the synthesis document is delivered directly.
 
 If the write fails, warn the user: *"⚠️ Archive write failed — this review won't be available for future PRISM runs."*
 
@@ -649,8 +650,8 @@ See `references/example-review.md` for a complete v2 review transcript.
 
 | Dependency | Required? | Notes |
 |------------|-----------|-------|
-| `sessions_spawn` | Required | Parallel reviewer fan-out. No valid params: `model=`, `max_depth=`, `timeout_minutes=`. Model goes in task prompt. |
-| `sub-agent-complete.sh` | Recommended | Emit `agent_done` on Phase 6 archive. Path: `~/.openclaw/scripts/sub-agent-complete.sh` |
+| Parallel agent spawn | Required | Agent tool (Cowork), Task tool (CC), `sessions_spawn` (OpenClaw). No valid params: `model=`, `max_depth=`, `timeout_minutes=` — model goes in task prompt. |
+| Completion signal | Optional | Runtime-specific. OpenClaw: `~/.openclaw/scripts/sub-agent-complete.sh`. CC/Cowork: completion is implicit. |
 | `qmd` | Optional | Search-enhanced context for reviewers. Falls back to grep if absent. |
 | Archive directory | Required | `analysis/prism/archive/<slug>/` — created automatically by orchestrator |
 
@@ -698,17 +699,4 @@ Use `--haiku` (full budget mode) for: routine checks on well-understood code, fa
 
 ## Autoresearch
 
-**Baseline:** 6.5/12 (Phase 1 audit, 2026-03-18 — first formal audit)
-**Post-improvement:** 10/12 (v2.1.0, 2026-03-18)
-
-**Mutation candidates:**
-1. Add single-haiku pre-checker mode (sub-$0.002 for <50 line changes)
-2. Empirically validate evidence tier system — do Tier 1 findings get resolved faster?
-3. Add DA-First scheduling mode: DA runs, reports, then all 5 run with DA brief injected (vs current: DA blind always)
-
-**Improvement log:**
-
-| Date | Version | Change | Score |
-|------|---------|--------|-------|
-| 2026-03-18 | v2.0.1 | Existing published version | 6.5/12 |
-| 2026-03-18 | v2.1.0 | PRISM self-audit: trigger conditions, gotchas, dependencies, model guide, archive retention, Extended mode batching, Evidence Rules deduplication, orchestration extraction | 10/12 |
+OpenClaw-specific autoresearch data moved to `references/openclaw.md`.
