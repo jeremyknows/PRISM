@@ -1,3 +1,24 @@
+## v3.0.0 (2026-04-20)
+
+**"PRISM Wiki Mode"** — adds a dedicated 3-reviewer mode for documentation quality review.
+
+### New Features
+- **Wiki mode:** `"PRISM this wiki"` invokes Technical Accuracy + Completeness + DA reviewers
+- **Typed modes:** First step toward mode-based reviewer selection (wiki vs standard vs budget)
+- **Post-verdict actions:** Defined APPROVE/AWC/NEEDS WORK/REJECT behavior for autonomous pipeline
+- **File access constraints:** Reviewer prompts now scope reads to `~/atlas/` and `~/projects/` only
+- **DA isolation hardening:** Wiki DA explicitly blocked from reading `analysis/prism/` archives
+- **Atlas Fitness questions:** DA now checks actionability in current Atlas phase + QMD safety
+- **Semantic prior-review search:** Step 2 now runs QMD search as a mandatory second pass (catches adjacent topics with different slugs)
+- **Archive path clarification:** Current convention is `analysis/prism/<slug>/` (no `archive/` subdirectory)
+
+### Breaking Changes
+- Archive path corrected from `analysis/prism/archive/<slug>/` (v2.0.0 docs) to `analysis/prism/<slug>/` — skill-doctor archive path needs updating to match
+
+### Internal
+- Prose consistency: "v2 Flow" heading renamed to "Orchestrator Checklist"
+- Version intro line updated to reflect both v3 and v2 additions
+
 ## v2.0.1 (2026-03-13)
 
 ### Fixes

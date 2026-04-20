@@ -63,7 +63,7 @@ Use synthesis template in main SKILL.md. Apply evidence hierarchy.
 mkdir -p "$WORKSPACE/analysis/prism/archive/<topic-slug>/"
 # Save as: YYYY-MM-DD-review.md
 # IMPORTANT: Pass the originating thread/channel ID so completion routes back to the right place
-bash ~/.openclaw/scripts/sub-agent-complete.sh "prism-<slug>" "na" "PRISM review of <slug> complete" "<thread_id>"
+bash ~/atlas/shared/scripts/util/sub-agent-complete.sh "prism-<slug>" "na" "PRISM review of <slug> complete" "<thread_id>"
 ```
 
 ---

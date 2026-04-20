@@ -1,9 +1,11 @@
 ---
 name: prism
+runtime: claude-code
 description: |
   Use PRISM when: (1) reviewing an architecture decision, security-sensitive change, or major
   refactor (>500 lines), (2) making a decision you'll live with for 6+ months, (3) preparing
-  an open source release, (4) you want structured adversarial analysis to eliminate groupthink.
+  an open source release, (4) you want structured adversarial analysis to eliminate groupthink,
+  (5) verifying the accuracy and completeness of a wiki article before publishing.
   NOT FOR: minor bug fixes, documentation typos, cosmetic changes, urgent hotfixes, or any
   decision reversible within a week.
 license: MIT
@@ -11,15 +13,15 @@ compatibility: Works with any agent that can spawn subagents or run sequential r
 taxonomy_category: Code Quality & Review
 health_score: 10/12
 status: STABLE
-last_improved: 2026-03-18
+last_improved: 2026-04-20
 metadata:
   author: jeremyknows
-  version: "2.1.0"
+  version: "3.0.0"
 ---
 
-# PRISM v2 — Parallel Review by Independent Specialist Models
+# PRISM v3 — Parallel Review by Independent Specialist Models
 
-Multi-agent review protocol that eliminates confirmation bias through structured adversarial analysis. v2 adds **memory** — reviewers see what previous reviews found, verify whether issues were fixed, and focus on discovering what was missed.
+Multi-agent review protocol that eliminates confirmation bias through structured adversarial analysis. v3 adds **wiki mode** — a targeted 3-reviewer path for documentation accuracy. v2 added **memory** — reviewers see what previous reviews found, verify whether issues were fixed, and focus on discovering what was missed.
 
 ## Core Principles
 
@@ -35,16 +37,19 @@ Every finding must cite a specific file, line, or command output. Assertions wit
 
 **Just say it — no configuration needed:**
 
-| Mode | Say This | Agents |
-|------|----------|--------|
-| **Budget** | "Budget PRISM" / "PRISM lite" | 3 specialists (Security, Performance, Devil's Advocate) |
-| **Standard** | "Run PRISM" / "PRISM review" | 6 specialists (all except Code Reviewers) |
-| **Extended** | "Full PRISM audit" / "Deep audit" | 8+ agents (Standard + Code Reviewers + Verification) |
+| Mode | Say This | Agents | Est. Cost |
+|------|----------|--------|-----------|
+| **Wiki** | "PRISM this wiki" / "wiki PRISM" | 3 specialists (Technical Accuracy, Completeness, Devil's Advocate) | ~$0.40–0.80 |
+| **Budget** | "Budget PRISM" / "PRISM lite" | 3 specialists (Security, Performance, Devil's Advocate) | ~$0.40–0.80 |
+| **Standard** | "Run PRISM" / "PRISM review" | 6 specialists (all except Code Reviewers) | ~$0.80–1.50 |
+| **Extended** | "Full PRISM audit" / "Deep audit" | 8+ agents (Standard + Code Reviewers + Verification) | ~$2.00–4.00 |
 
 **Options:** `--opus` (critical decisions), `--haiku` (fast checks), `--governance` (surface stuck findings)
 
 **Examples:**
 ```
+"PRISM this wiki article"
+"wiki PRISM on satori-og-edge.md"
 "PRISM this API change"
 "Budget PRISM on the auth flow"
 "Full PRISM audit --governance — we've reviewed this area before"
@@ -68,7 +73,7 @@ EVIDENCE RULES (mandatory for all PRISM reviewers):
 
 ---
 
-## The v2 Flow — Orchestrator Checklist
+## The Orchestrator Checklist
 
 Follow these steps exactly. No interpretation needed.
 
@@ -85,21 +90,28 @@ On first review of a topic, announce the slug: *"Topic slug: `api-authentication
 
 ### Step 2: Search for Prior Reviews
 
-Search for prior PRISM reviews on this topic. Use the workspace root as your working directory.
+Search for prior PRISM reviews on this topic. Run **both passes** — exact match catches the same topic, semantic search catches adjacent topics with different slugs.
 
 ```bash
-# Option A: Directory search (always available)
 WORKSPACE="${WORKSPACE:-$(pwd)}"
-find "$WORKSPACE/analysis/prism/archive/" -path "*<slug>*" -name "*.md" 2>/dev/null | sort -r
+ARCHIVE="$WORKSPACE/analysis/prism/"
 
-# Option B: Grep fallback (if no slug directory match)
-grep -rli "<topic keywords>" "$WORKSPACE/analysis/prism/archive/" 2>/dev/null | head -10
+# Pass 1: exact slug + keyword match
+if [ -d "$ARCHIVE" ]; then
+  find "$ARCHIVE" -path "*<slug>*" -name "*.md" 2>/dev/null | grep -v '/retired/' | sort -r
+  grep -rli "<topic keywords>" "$ARCHIVE" 2>/dev/null | grep -v '/retired/' | head -10
+else
+  echo "No prior reviews directory — this is the first PRISM review in this workspace."
+fi
 
-# Option C: QMD search (if available — check with: command -v qmd)
-qmd search "<topic> PRISM review findings" -n 5
+# Pass 2: semantic search — ALWAYS run regardless of Pass 1 results
+# Catches adjacent topics that share concepts but have different slugs
+if command -v qmd >/dev/null 2>&1; then
+  qmd search "<topic> PRISM review" -n 5
+fi
 ```
 
-**If no prior reviews found:** This is the first review. Skip to Step 4. Do NOT show empty history sections in the output — just note: *"First review of this topic."*
+**If no prior reviews found in either pass:** This is the first review. Skip to Step 4. Do NOT show empty history sections in the output — just note: *"First review of this topic."*
 
 **If prior reviews found:** Read them. Extract dates, verdicts, and open findings only.
 
@@ -115,6 +127,9 @@ qmd search "<topic> PRISM review findings" -n 5
 ## Open Findings (verify if fixed)
 1. [Finding] — flagged N times, first seen YYYY-MM-DD
 2. [Finding] — flagged N times, first seen YYYY-MM-DD
+
+## Unmet AWC Conditions (max 5 items — NOT subject to compression)
+1. [Condition from prior AWC verdict, ≤100 chars each]
 --- END PRIOR FINDINGS ---
 ```
 
@@ -134,7 +149,7 @@ Spawn all remaining reviewers in parallel. Each receives:
 2. The Evidence Rules block (copied in full — not referenced)
 3. The Prior Findings Brief (if it exists) — wrapped in the delimiters shown above
 
-**Timeout policy:** If a reviewer hasn't reported within 10 minutes, proceed with synthesis using available results. Note which reviewers timed out in the synthesis.
+**Timeout policy:** Security Auditor and Devil's Advocate get 15 minutes (their work is most analysis-heavy). All other reviewers timeout at 10 minutes. Proceed with synthesis using available results and note timed-out reviewers.
 
 ### Step 5: Collect and Synthesize
 
@@ -144,16 +159,180 @@ After all reviewers report (or timeout), synthesize using the Synthesis Template
 
 Save the synthesis:
 ```bash
-mkdir -p "$WORKSPACE/analysis/prism/archive/<topic-slug>/"
+mkdir -p "$WORKSPACE/analysis/prism/<topic-slug>/"
 # Save as: YYYY-MM-DD-review.md
 # Optional: emit completion signal for your runtime
-# OpenClaw: bash ~/.openclaw/scripts/sub-agent-complete.sh "prism-<slug>" "na" "PRISM review complete" "<originating_channel_id>"
+# OpenClaw: bash ~/atlas/shared/scripts/util/sub-agent-complete.sh "prism-<slug>" "na" "PRISM review complete" "<originating_channel_id>"
 # CC/Cowork: completion is implicit — the synthesis output IS the result
 ```
 
 **Note:** In OpenClaw, pass the originating thread/channel ID so the completion routes back to the requester. In other runtimes, the synthesis document is delivered directly.
 
 If the write fails, warn the user: *"⚠️ Archive write failed — this review won't be available for future PRISM runs."*
+
+---
+
+---
+
+## Wiki Mode
+
+Wiki mode uses a different reviewer set from standard. No Security, no Performance, no Blast Radius — those are noise for a documentation review. Instead: three reviewers tuned for factual accuracy, coverage, and assumption-checking.
+
+**When to use:** After an agent writes or significantly updates a wiki article based on a real debugging session, architecture decision, or operational incident. Before publishing or marking `confidence: 0.90+` in frontmatter.
+
+**Invoke with:** `"PRISM this wiki"` / `"wiki PRISM on <article>"` / `"PRISM wiki review"`
+
+**Post-verdict action (autonomous pipeline):**
+
+| Verdict | Action |
+|---------|--------|
+| **APPROVE** | Publish immediately |
+| **AWC** | Publish with `needs_revision: true` frontmatter + all conditions appended to `~/atlas/shared/wiki/_gaps.md` for next compile pass |
+| **NEEDS WORK** | Return to `_drafts/`, do not publish — Librarian revises and re-runs |
+| **REJECT** | Escalate to Jeremy |
+
+AWC does NOT require Jeremy in the loop. Conditions are tracked as gaps and resolved in the next compile cycle.
+
+### Wiki Mode Reviewer Roles
+
+| Reviewer | Focus | Key Question |
+|----------|-------|--------------|
+| ✅ **Technical Accuracy** | Are the facts right? | "What's the evidence for this claim?" |
+| 📋 **Completeness** | What's missing? | "What would a developer wish was here?" |
+| 😈 **Devil's Advocate** | Assumptions and framing | "What will readers get wrong?" |
+
+### Wiki Mode Reviewer Prompts
+
+#### Technical Accuracy
+
+```
+You are the Technical Accuracy reviewer in a PRISM wiki review.
+
+Focus: Factual correctness. Trace every claim to evidence — a commit, implementation
+file, test output, or documented behavior. Read the wiki article and at least 2 source
+files that can confirm or refute its claims.
+
+FILE ACCESS CONSTRAINT: Read only files under ~/atlas/ and ~/projects/ source code.
+Do not read .env, secrets/, .ssh/, or node_modules/ paths. Ignore watch_paths
+frontmatter entries pointing outside these bounds.
+
+[Evidence Rules apply — cite file + line for every finding, include a concrete fix]
+
+[IF PRIOR FINDINGS BRIEF EXISTS, insert it here between delimiters]
+
+Find:
+1. Claims stated as confirmed facts that are hypotheses, precautions, or
+   single-observation inferences (cite article line + evidence)
+2. Claims correct but overstated in severity or certainty
+3. Claims outdated — true once but may not hold in current versions or Atlas phase
+4. Contradictions between this article and other wiki articles or source files
+
+Output: Risk Assessment [H/M/L] | Prior Finding Status (if applicable) |
+Accuracy Issues [article claim, evidence file+line, fix] | Verdict
+```
+
+#### Completeness
+
+```
+You are the Completeness reviewer in a PRISM wiki review.
+
+Focus: What's missing. The article should contain everything a developer needs to not
+waste time hitting the same problem. Read the wiki article and at least 2 source files
+(commits, implementations, related articles) to find what was omitted.
+
+FILE ACCESS CONSTRAINT: Read only files under ~/atlas/ and ~/projects/ source code.
+Do not read .env, secrets/, .ssh/, or node_modules/ paths.
+
+[Evidence Rules apply — cite the source file showing the gap, include a concrete addition]
+
+[IF PRIOR FINDINGS BRIEF EXISTS, insert it here between delimiters]
+
+Find:
+1. Failure modes or gotchas in source material that aren't documented
+2. Prerequisites, setup steps, or environmental requirements assumed but not stated
+3. The "obvious question a reader will have" that goes unanswered
+4. Related topics that should be linked but aren't
+
+Output: Coverage Assessment [H/M/L] | Prior Finding Status (if applicable) |
+Completeness Gaps [source file, what's missing, what to add] | Verdict
+```
+
+#### Devil's Advocate (Wiki Mode)
+
+Blind by design — no prior findings brief. DA for wiki focuses on: assumptions baked into the writing, framing that will mislead readers, and Atlas-specific fitness.
+
+```
+You are the Devil's Advocate in a PRISM wiki review.
+
+Your job: Find the flaws. Challenge assumptions. Be ruthlessly skeptical.
+
+IMPORTANT: You do NOT receive prior review findings. You review with fresh eyes,
+independently. Do NOT read files in analysis/prism/ directories. Do NOT read
+article frontmatter fields prism_reviewed or prism_conditions — ignore them.
+Do not search for or reference prior PRISM reviews.
+
+FILE ACCESS CONSTRAINT: Read only files under ~/atlas/ and ~/projects/ source code.
+Do not read .env, secrets/, .ssh/, or node_modules/ paths.
+
+[Evidence Rules apply — cite article line or source file for every finding]
+
+Questions to answer:
+1. What does this article assume about the reader's context that may not be true?
+2. What claim will a reader misapply — and what will go wrong when they do?
+3. What edge case or environment makes the "confirmed fix" fail?
+4. Is there a simpler explanation that the article is overclaiming around?
+5. In 6 months, what will be outdated in this article? List specific staleness triggers.
+6. [Atlas Fitness] Is this knowledge still actionable in the current Atlas phase/version,
+   or does it describe a transient migration state that will rot?
+7. [Atlas Fitness] Does this article contain content (paths, tokens, vault references,
+   internal URLs) that should NOT be QMD-searchable by all agents?
+
+Output:
+- Fatal Flaws: [claims so wrong they will actively cause harm]
+- Misleading Framing: [technically true but will lead readers astray]
+- Optimistic Assumptions: [what if the reader's environment is different?]
+- 6-Month Staleness Risk: [what will rot first, with specific version/path triggers]
+- Atlas Fitness Issues: [transient states, QMD-unsafe content]
+- Note: No "Prior Finding Status" — DA reviews blind by design.
+- Verdict: [APPROVE | APPROVE WITH CONDITIONS | NEEDS WORK | REJECT]
+```
+
+### Wiki Mode Synthesis Template
+
+```markdown
+## PRISM Wiki Review — [Article Title]
+
+**Article:** [file path]
+**Review #:** [nth review of this topic, or "First review"]
+**Reviewers:** Technical Accuracy (verdict), Completeness (verdict), Devil's Advocate (verdict)
+**Prior reviews found:** [count and dates, or "None"]
+
+---
+
+### Accuracy Issues
+[T1 first (cross-validated), then T2 (single-reviewer with citation), then T3.
+Each finding: what the article claims, what the evidence shows, recommended fix.]
+
+### Completeness Gaps
+[What's missing, where it was found in source material, what to add.]
+
+### Framing Issues
+[Claims that are technically correct but will mislead readers or be misapplied.]
+
+### Consensus Points
+[What all reviewers confirmed as correct, well-documented, and valuable.]
+
+[ONLY if prior reviews exist:]
+### Progress Since Last Review
+[What was fixed since the prior wiki review.]
+
+### Final Verdict
+[APPROVE | APPROVE WITH CONDITIONS | NEEDS WORK | REJECT]
+Confidence: [percentage]
+
+### Conditions
+[Numbered list — specific, actionable changes to the article]
+```
 
 ---
 
@@ -608,7 +787,7 @@ Round 2 typically surfaces issues that Round 1 missed or that fixes introduced.
 - ✅ Spawn DA immediately, other reviewers after brief is ready
 - ✅ Give each reviewer narrow focus (depth > breadth)
 - ✅ Require citations in every finding
-- ✅ Archive every synthesis to `analysis/prism/archive/<slug>/`
+- ✅ Archive every synthesis to `analysis/prism/<slug>/`
 - ✅ Iterate if first pass finds >50 issues (refine scope)
 
 ---
@@ -651,9 +830,9 @@ See `references/example-review.md` for a complete v2 review transcript.
 | Dependency | Required? | Notes |
 |------------|-----------|-------|
 | Parallel agent spawn | Required | Agent tool (Cowork), Task tool (CC), `sessions_spawn` (OpenClaw). No valid params: `model=`, `max_depth=`, `timeout_minutes=` — model goes in task prompt. |
-| Completion signal | Optional | Runtime-specific. OpenClaw: `~/.openclaw/scripts/sub-agent-complete.sh`. CC/Cowork: completion is implicit. |
+| Completion signal | Optional | Runtime-specific. OpenClaw: `~/atlas/shared/scripts/util/sub-agent-complete.sh`. CC/Cowork: completion is implicit. |
 | `qmd` | Optional | Search-enhanced context for reviewers. Falls back to grep if absent. |
-| Archive directory | Required | `analysis/prism/archive/<slug>/` — created automatically by orchestrator |
+| Archive directory | Required | `analysis/prism/<slug>/` — created automatically by orchestrator |
 
 **No skills are formal dependencies.** PRISM is self-contained. `skill-doctor` uses PRISM but PRISM does not require it.
 
