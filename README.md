@@ -2,7 +2,7 @@
 
 **Parallel Review by Independent Specialist Models**
 
-Multi-agent review protocol that eliminates confirmation bias through structured adversarial analysis. v3 adds **wiki mode** — a targeted 3-reviewer path for documentation accuracy. v2 added **memory** — the system learns from its own review history.
+Multi-agent review protocol that eliminates confirmation bias through structured adversarial analysis. v3 adds **wiki mode** and **creative mode** — a 5-role path for brand and motion direction reviews with Brand Creative Memory — a targeted 3-reviewer path for documentation accuracy. v2 added **memory** — the system learns from its own review history.
 
 ## What It Does
 
@@ -78,6 +78,7 @@ Just say it — no configuration needed:
 | **Budget** | "Budget PRISM" / "PRISM lite" | 3 specialists (Security, Performance, DA) | ~$0.40–0.80 |
 | **Standard** | "Run PRISM" / "PRISM review" | 6 specialists | ~$0.80–1.50 |
 | **Extended** | "Full PRISM audit" / "Deep audit" | 8+ agents | ~$2.00–4.00 |
+| **Creative** | "creative PRISM" / "PRISM this creative" | 5 specialists (Brand, Motion, Technical, Delight, Provocateur) | ~$0.80–1.60 |
 
 ### Options
 
@@ -93,6 +94,8 @@ Just say it — no configuration needed:
 "PRISM this API change"
 "Budget PRISM on the auth flow"
 "Full PRISM audit --governance — we've reviewed this area before"
+"creative PRISM on the hero animation brief"
+"brand review PRISM — veefriends launch video"
 ```
 
 ## How It Works
