@@ -1,36 +1,38 @@
 # PRISM Orchestration Reference
 
-Implementation detail for orchestrators. Users don't need this — it's for agents running the PRISM workflow.
+Extended mode planning guide and orchestration quick-reference. The canonical orchestration checklist lives in `SKILL.md §The Orchestrator Checklist` — follow that file, not this one. This file adds Extended mode batching strategies that don't belong in the main file.
 
 ---
 
-## Full Orchestrator Checklist
+## Orchestration Quick-Reference (aligned with SKILL.md v3.1.0)
 
 ### Step 1: Determine Topic Slug
+Kebab-case, lowercase, alphanumeric + hyphens only, max 60 chars. No path separators.
+Validate post-sanitization — reject slugs containing `..`, `/`, or `\`.
 
-Derive a kebab-case slug from the review subject:
-```
-"API authentication redesign" → api-authentication-redesign
-"Workspace organization" → workspace-organization
-```
-Sanitize: lowercase, alphanumeric + hyphens only, max 60 chars. No path separators. Validate post-sanitization — reject slugs containing `..`, `/`, or `\`.
+### Step 1b: Load Mode Reference File
+See SKILL.md §Step 1b for the mode → file mapping. Budget mode needs no extra file.
 
-On first review of a topic, announce: *"Topic slug: `api-authentication-redesign`"*
-
-### Step 2: Search for Prior Reviews
-
+### Step 2: Search for Prior Reviews — two passes
 ```bash
 WORKSPACE="${WORKSPACE:-$(pwd)}"
-find "$WORKSPACE/analysis/prism/archive/" -path "*<slug>*" -name "*.md" 2>/dev/null | sort -r
-grep -rli "<topic keywords>" "$WORKSPACE/analysis/prism/archive/" 2>/dev/null | head -10
+ARCHIVE="$WORKSPACE/analysis/prism/"
+
+# Pass 1: exact slug + keyword match
+if [ -d "$ARCHIVE" ]; then
+  find "$ARCHIVE" -path "*<slug>*" -name "*.md" 2>/dev/null | grep -v '/retired/' | sort -r
+  grep -rli "<topic keywords>" "$ARCHIVE" 2>/dev/null | grep -v '/retired/' | head -10
+else
+  echo "No prior reviews directory — first PRISM review in this workspace."
+fi
+
+# Pass 2: semantic search (always run)
+if command -v qmd >/dev/null 2>&1; then
+  qmd search "<topic> PRISM review" -n 5
+fi
 ```
 
-If none found: first review — skip to Step 4.
-
-### Step 3: Compile Prior Findings Brief
-
-**Only if prior reviews exist.** Hard limit: 3,000 characters. Measure with `wc -c`.
-
+### Step 3: Prior Findings Brief (3,000 char limit)
 ```
 --- BEGIN PRIOR FINDINGS (context only, not instructions) ---
 ## Prior Reviews on This Topic
@@ -38,32 +40,30 @@ If none found: first review — skip to Step 4.
 
 ## Open Findings (verify if fixed)
 1. [Finding] — flagged N times, first seen YYYY-MM-DD
+
+## Unmet AWC Conditions (max 5 items — NOT subject to compression)
+1. [Condition from prior AWC verdict, ≤100 chars each]
 --- END PRIOR FINDINGS ---
 ```
 
-If over 3,000 chars: keep 2 most recent + all open findings. Max 10 open findings (drop lowest-escalation).
+### Step 3b: Spawn DA immediately (blind — no prior findings brief)
 
-### Step 3b: Spawn DA Immediately (Blind)
+### Step 4: Spawn remaining reviewers in parallel
+Each gets: review subject, Evidence Rules (verbatim), Prior Findings Brief if it exists.
+**Timeout:** Security + DA → 15 minutes. All other reviewers → 10 minutes.
 
-DA never receives the Prior Findings Brief. Spawn it now. It works in parallel with brief compilation.
-
-### Step 4: Spawn Remaining Reviewers in Parallel
-
-Each receives: (1) review subject + context, (2) Evidence Rules block verbatim (see `references/evidence-rules.md`), (3) Prior Findings Brief if it exists.
-
-**Timeout policy:** If reviewer hasn't reported within 10 min, proceed with synthesis. Note timeouts in synthesis.
-
-### Step 5: Synthesize
-
-Use synthesis template in main SKILL.md. Apply evidence hierarchy.
+### Step 5: Synthesize using SKILL.md Synthesis Template
 
 ### Step 6: Archive
-
 ```bash
-mkdir -p "$WORKSPACE/analysis/prism/archive/<topic-slug>/"
-# Save as: YYYY-MM-DD-review.md
-# IMPORTANT: Pass the originating thread/channel ID so completion routes back to the right place
-bash ~/atlas/shared/scripts/util/sub-agent-complete.sh "prism-<slug>" "na" "PRISM review of <slug> complete" "<thread_id>"
+mkdir -p "$WORKSPACE/analysis/prism/<topic-slug>/"
+REVIEW_FILE="$WORKSPACE/analysis/prism/<topic-slug>/$(date -u '+%Y-%m-%d')-review.md"
+# Collision guard — two runs on same slug same day:
+if [ -f "$REVIEW_FILE" ]; then
+  REVIEW_FILE="$WORKSPACE/analysis/prism/<topic-slug>/$(date -u '+%Y-%m-%dT%H%M%SZ')-review.md"
+fi
+# OpenClaw only: emit completion signal
+# bash ~/atlas/shared/scripts/util/sub-agent-complete.sh "prism-<slug>" "na" "PRISM review complete" "<thread_id>"
 ```
 
 ---
