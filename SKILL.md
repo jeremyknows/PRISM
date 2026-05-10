@@ -428,6 +428,12 @@ take to cover it. These become inputs for the next review.]
 
 [If no user-facing outcome is affected, state that explicitly: "This change is infrastructure-only with no direct user impact."]
 
+[ONLY if --simplicity flag is set:]
+### Premise Audit
+**Anti-OE Finding:** [Anti-Overengineering Architect's core finding — verbatim or tightly paraphrased]
+**Premise validity:** [IS THE PREMISE VALID / PARTIALLY VALID / NOT VALID]
+**Simpler alternative:** [The 30–90 min intervention proposed, or "none identified"]
+
 ### Final Verdict
 [APPROVE | AWC | NEEDS WORK | REJECT]
 Confidence: [percentage]

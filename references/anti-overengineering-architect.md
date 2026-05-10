@@ -58,10 +58,18 @@ Both this reviewer's AND the Simplicity Advocate's findings must:
 
 The elevation ensures premise-level questions are answered explicitly, even if the answer is "yes, the complexity is warranted." A Tier 1 Security finding still outranks a Tier 3 Anti-OE finding — the elevation is about surfacing for debate, not overriding evidence hierarchy.
 
+**Premise Audit (dedicated section, same weight as Final Verdict):** When `--simplicity` is active, the synthesis includes a `### Premise Audit` section immediately before `### Final Verdict`. The orchestrator populates it directly from this reviewer's output:
+- **Anti-OE Finding** — verbatim or tightly paraphrased core finding
+- **Premise validity** — IS THE PREMISE VALID / PARTIALLY VALID / NOT VALID
+- **Simpler alternative** — the 30–90 min intervention proposed, or "none identified"
+
+This section is not a summary of Consensus/Contentious. It is a standalone premise-check that informs the verdict directly.<!-- atlas-private:start --> Evidence: two consecutive `--simplicity` runs (gbrain-wiki-retrieval 2026-05-10, master-baton-audit-and-registry 2026-05-10) where the Anti-OE finding became the Tier-1 cross-validated centerpiece but would have been buried without dedicated surfacing.<!-- /atlas-private:end -->
+
 Add this note to the synthesis header when `--simplicity` is active:
 ```
 **Flag active:** `--simplicity` — Simplicity Advocate + Anti-OE Architect findings
-are synthesis-elevated (must appear in Consensus or Contentious sections).
+are synthesis-elevated (must appear in Consensus or Contentious sections) +
+Premise Audit section active (see before Final Verdict).
 ```
 
 ## When to Use This Role
