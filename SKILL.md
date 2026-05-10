@@ -46,9 +46,9 @@ Every finding must cite a specific file, line, or command output. Assertions wit
 | **Extended** | "Full PRISM audit" / "Deep audit" | 8+ agents (Standard + Code Reviewers + Verification) | ~$2.00–4.00 |
 | **Sprint** | "PRISM sprint on \<repo\>" / "sprint PRISM" / "code review sprint" | 3–6 per issue, sequential | ~$0.40–1.50/issue |
 
-**Options:** `--opus` (critical decisions), `--haiku` (fast checks), `--governance` (surface stuck findings), `--simplicity-heavy` (2 simplicity reviewers — use when proposal has pro-complexity bias; +$1.50–2/run)
+**Options:** `--opus` (critical decisions), `--haiku` (fast checks), `--governance` (surface stuck findings), `--simplicity` (2 simplicity reviewers — use when proposal has pro-complexity bias; +$1.50–2/run)
 
-**`--simplicity-heavy` flag:** Spawns the standard Simplicity Advocate **plus** a new **Anti-Overengineering Architect** (prompt: `references/anti-overengineering-architect.md`). The Advocate asks "what can we cut?" (engine-level). The Architect asks "is this the right problem to solve right now?" (premise-level). Both reviewers' findings must surface explicitly in Consensus or Contentious Points — they cannot be buried by standard role-priority ordering (Simplicity is normally lowest tier). Default: off. Cost: +$1.50–2/run.
+**`--simplicity` flag:** Spawns the standard Simplicity Advocate **plus** a new **Anti-Overengineering Architect** (prompt: `references/anti-overengineering-architect.md`). The Advocate asks "what can we cut?" (engine-level). The Architect asks "is this the right problem to solve right now?" (premise-level). Both reviewers' findings must surface explicitly in Consensus or Contentious Points — they cannot be buried by standard role-priority ordering (Simplicity is normally lowest tier). Default: off. Cost: +$1.50–2/run.
 Use when: "add a layer" proposals, architecture decisions, prior PRISMs where simplicity findings were dismissed then proved correct.
 NOT for: small bugfixes, security audits, topics where complexity is genuinely warranted.
 See `references/anti-overengineering-architect.md` for prompt + synthesis elevation rule.
@@ -99,11 +99,11 @@ On first review of a topic, announce the slug: *"Topic slug: `api-authentication
 
 Identify the mode from the invocation phrase. Before spawning any reviewer, explicitly Read the mode file:
 
-- **Wiki** → `Read <skills-install>/prism/references/wiki-mode.md`
+- **Wiki** → `Read ~/.claude/skills/prism/references/wiki-mode.md`
 - **Budget** — no additional file needed (Security + Performance + DA prompts are below)
-- **Standard / Extended** → `Read <skills-install>/prism/references/reviewer-prompts-extended.md`
-- **Creative** → `Read <skills-install>/prism/references/creative-mode.md`
-- **Sprint** → `Read <skills-install>/prism/references/sprint-mode.md`
+- **Standard / Extended** → `Read ~/.claude/skills/prism/references/reviewer-prompts-extended.md`
+- **Creative** → `Read ~/.claude/skills/prism/references/creative-mode.md`
+- **Sprint** → `Read ~/.claude/skills/prism/references/sprint-mode.md`
 
 If the reference file is not found: halt and warn: *"⚠️ Mode reference file missing — cannot spawn reviewers safely."*
 
@@ -189,7 +189,7 @@ if [ -f "$REVIEW_FILE" ]; then
   REVIEW_FILE="$WORKSPACE/analysis/prism/<topic-slug>/$(date -u '+%Y-%m-%dT%H%M%SZ')-review.md"
 fi
 # Optional: emit completion signal for your runtime
-# OpenClaw: bash <shared-scripts>/util/sub-agent-complete.sh "prism-<slug>" "na" "PRISM review complete" "<originating_channel_id>"
+# OpenClaw: bash ~/atlas/shared/scripts/util/sub-agent-complete.sh "prism-<slug>" "na" "PRISM review complete" "<originating_channel_id>"
 # CC/Cowork: completion is implicit — the synthesis output IS the result
 ```
 
@@ -211,7 +211,7 @@ Mode-specific procedures live in `references/` and are loaded on demand via Step
 | Creative | `references/creative-mode.md` | Creative evidence rules, 5 reviewer prompts, synthesis template, Brand Creative Memory spec |
 | Sprint | `references/sprint-mode.md` | Scope setup, criticality table, per-issue loop, confirmation gate, completion protocol |
 | Standard / Extended extra reviewers | `references/reviewer-prompts-extended.md` | Simplicity Advocate, Integration Engineer, Blast Radius Reviewer, Code Reviewer, Verification Auditor |
-| `--simplicity-heavy` flag | `references/anti-overengineering-architect.md` | Anti-OE Architect prompt, synthesis elevation rule, when to use, canonical example |
+| `--simplicity` flag | `references/anti-overengineering-architect.md` | Anti-OE Architect prompt, synthesis elevation rule, when to use, canonical example |
 
 **Also in `references/` (human reference, not runtime-loaded):**
 - `references/example-review.md` — complete v2 review transcript
@@ -544,7 +544,7 @@ See `references/example-review.md` for a complete v2 review transcript.
 | Dependency | Required? | Notes |
 |------------|-----------|-------|
 | Parallel agent spawn | Required | Agent tool (Cowork), Task tool (CC), `sessions_spawn` (OpenClaw). No valid params: `model=`, `max_depth=`, `timeout_minutes=` — model goes in task prompt. |
-| Completion signal | Optional | Runtime-specific. OpenClaw: `<shared-scripts>/util/sub-agent-complete.sh`. CC/Cowork: completion is implicit. |
+| Completion signal | Optional | Runtime-specific. OpenClaw: `~/atlas/shared/scripts/util/sub-agent-complete.sh`. CC/Cowork: completion is implicit. |
 | `qmd` | Optional | Search-enhanced context for reviewers. Falls back to grep if absent. |
 | Archive directory | Required | `analysis/prism/<slug>/` — created automatically by orchestrator |
 

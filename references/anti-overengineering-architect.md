@@ -1,6 +1,6 @@
 # Anti-Overengineering Architect — PRISM Role Reference
 
-Used with the `--simplicity-heavy` flag alongside the standard Simplicity Advocate. Both are spawned instead of one simplicity reviewer.
+Used with the `--simplicity` flag alongside the standard Simplicity Advocate. Both are spawned instead of one simplicity reviewer.
 
 ## Role vs Simplicity Advocate
 
@@ -49,7 +49,7 @@ Output format:
 - Verdict: [APPROVE | APPROVE WITH CONDITIONS | NEEDS WORK | REJECT]
 ```
 
-## Synthesis Elevation Rule (when `--simplicity-heavy` is active)
+## Synthesis Elevation Rule (when `--simplicity` is active)
 
 Both this reviewer's AND the Simplicity Advocate's findings must:
 - Appear in **Consensus Points** if 2+ other reviewers independently corroborate
@@ -58,15 +58,15 @@ Both this reviewer's AND the Simplicity Advocate's findings must:
 
 The elevation ensures premise-level questions are answered explicitly, even if the answer is "yes, the complexity is warranted." A Tier 1 Security finding still outranks a Tier 3 Anti-OE finding — the elevation is about surfacing for debate, not overriding evidence hierarchy.
 
-Add this note to the synthesis header when `--simplicity-heavy` is active:
+Add this note to the synthesis header when `--simplicity` is active:
 ```
-**Flag active:** `--simplicity-heavy` — Simplicity Advocate + Anti-OE Architect findings
+**Flag active:** `--simplicity` — Simplicity Advocate + Anti-OE Architect findings
 are synthesis-elevated (must appear in Consensus or Contentious sections).
 ```
 
 ## When to Use This Role
 
-**Use `--simplicity-heavy` when:**
+**Use `--simplicity` when:**
 - The proposal instinctively adds a layer (new index, new service, new daemon)
 - Prior PRISMs in adjacent topics had simplicity findings dismissed, then proved correct
 - "Is this the right problem" is the real question underneath the technical review
@@ -79,6 +79,18 @@ are synthesis-elevated (must appear in Consensus or Contentious sections).
 - Time-sensitive reviews where +1 reviewer cost isn't justified
 
 ## Canonical Example
+
+<!-- atlas-private:start -->
+**Run:** GBrain Wiki Retrieval Architecture PRISM, 2026-05-10
+**Synthesis archive:** `~/atlas/agents/terminal/analysis/prism/gbrain-wiki-retrieval-architecture/2026-05-10-review.md`
+
+**Finding elevated by this role (T2 → T1 via cross-validation):**
+"Zero production callers of `wiki.search()` / `memory.recall()` — confirmed via independent grep by DA, Anti-OE Architect, Verification Auditor, and Integration Engineer. The eval optimization debate is premature: we're optimizing infrastructure with no users yet."
+
+**Impact:** Load-bearing reason to REJECT Option B (4-7h BM25 implementation) and APPROVE Option C (90-min curation/tagging MVP) instead.
+
+**Without `--simplicity`:** DA surfaced the no-callers observation. Anti-OE Architect was the structural amplifier — its premise-level "should we build this?" framing made 3 other reviewers grep independently to verify, elevating it from a single DA observation to a cross-validated T1.
+<!-- /atlas-private:end -->
 
 **Simplicity-Weighting Observation (verbatim from synthesis §):**
 > "Two simplicity-focused reviewers instead of one. The Anti-OE Architect was framed with a wider 'is this the right problem?' lens vs Simplicity Advocate's standard 'what can we cut?' lens. Did they surface different angles, or were they redundant? DIFFERENT and complementary."
