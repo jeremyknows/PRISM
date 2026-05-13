@@ -105,6 +105,8 @@ Identify the mode from the invocation phrase. Before spawning any reviewer, expl
 - **Creative** → `Read ~/.claude/skills/prism/references/creative-mode.md`
 - **Sprint** → `Read ~/.claude/skills/prism/references/sprint-mode.md`
 
+**Supply-chain incident overlay:** If the user mentions an active package/npm/PyPI/supply-chain compromise, or asks whether operations are exposed, also read `references/supply-chain-incident-review.md` before spawning reviewers. In reviewer prompts, explicitly prohibit dependency mutation and package-script execution unless the operator has cleared it. Package scripts (`npm run build`, `npm run typecheck`, etc.) are code execution through the local dependency tree; during incident windows they need their own approval gate, not just “no install/update.”
+
 If the reference file is not found: halt and warn: *"⚠️ Mode reference file missing — cannot spawn reviewers safely."*
 
 > **Why this step exists:** Reference files are not auto-loaded by CC — they must be explicitly Read. Warm sessions will pattern-match from context and skip loading if this step is absent.
@@ -220,6 +222,9 @@ Mode-specific procedures live in `references/` and are loaded on demand via Step
 - `references/openclaw.md` — OpenClaw-specific autoresearch data
 - `references/orchestration.md` — Extended mode planning guide (canonical orchestration is in this file)
 - `references/atlas-runtime-boundary-review.md` — Atlas OS/runtime-independence review checklist and 2026-05-09 lessons (read for registry, runtime-boundary, rollback, Memory Service, and Curator-risk reviews)
+- `references/operational-state-review.md` — Operational posture PRISM pattern: gates, active incidents, canary readiness, and safe next actions
+- `references/contract-semantics-decision-notes.md` — Use when an architecture decision touches ambiguous contract fields/enums, provider boundaries, routing scopes, or persisted schema semantics
+- `references/supply-chain-incident-review.md` — Supply-chain incident overlay (referenced from Step 1b when an active compromise is in progress)
 
 ---
 
@@ -478,7 +483,11 @@ A Tier 1 finding from any reviewer outranks a Tier 3 finding from Security.
 
 ## When to Use PRISM
 
-**High value:** Architecture decisions, security-sensitive changes, major refactors (>1000 lines), open source releases, decisions you'll live with for 6+ months.
+**High value:** Architecture decisions, security-sensitive changes, major refactors (>1000 lines), open source releases, decisions you'll live with for 6+ months, and operational state reviews before advancing gates/canaries/production routes.
+
+**Contract semantics checkpoint:** If the review subject changes a load-bearing enum/field, provider boundary, routing scope, or persisted schema, first ask whether the field's semantic axis is settled. If an implementation would silently choose between topology, delivery surface, identity, or transport meanings, read `references/contract-semantics-decision-notes.md` and produce/link a bounded decision note before code.
+
+**Operational-state reviews:** When PRISMing current operations (not a code diff), read `references/operational-state-review.md` first. This covers precise gate language, active incident constraints, supply-chain-safe command posture, and reviewed-hold vs closure decisions.
 
 **Skip it:** Minor bug fixes, documentation typos, cosmetic changes, urgent hotfixes, decisions that are easily reversible within a week.
 
