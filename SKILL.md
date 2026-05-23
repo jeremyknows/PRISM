@@ -225,6 +225,8 @@ Mode-specific procedures live in `references/` and are loaded on demand via Step
 - `references/operational-state-review.md` — Operational posture PRISM pattern: gates, active incidents, canary readiness, and safe next actions
 - `references/contract-semantics-decision-notes.md` — Use when an architecture decision touches ambiguous contract fields/enums, provider boundaries, routing scopes, or persisted schema semantics
 - `references/supply-chain-incident-review.md` — Supply-chain incident overlay (referenced from Step 1b when an active compromise is in progress)
+- `references/open-pr-command-deck-review.md` — Use when the operator asks to open a PR and run extended PRISM while the current agent is acting as command deck; covers PR body boundaries, reviewer panel, synthesis comment, and patch/re-review follow-up lanes.
+- `references/semantic-blockers-vs-verification-pass.md` — Use when an Extended PRISM has clean command verification but specialist panels prove semantic/contract blockers; command PASS does not override NEEDS_WORK findings.
 
 ---
 
@@ -488,6 +490,8 @@ A Tier 1 finding from any reviewer outranks a Tier 3 finding from Security.
 **Contract semantics checkpoint:** If the review subject changes a load-bearing enum/field, provider boundary, routing scope, or persisted schema, first ask whether the field's semantic axis is settled. If an implementation would silently choose between topology, delivery surface, identity, or transport meanings, read `references/contract-semantics-decision-notes.md` and produce/link a bounded decision note before code.
 
 **Operational-state reviews:** When PRISMing current operations (not a code diff), read `references/operational-state-review.md` first. This covers precise gate language, active incident constraints, supply-chain-safe command posture, and reviewed-hold vs closure decisions.
+
+**Open PR under command deck:** When the user asks to open a PR and run Extended PRISM, and the current agent is operating as command deck, read `references/open-pr-command-deck-review.md` before spawning reviewers. Open the PR with explicit authority boundaries, run independent reviewer lanes, post a concise synthesis comment, and dispatch patch/re-review lanes instead of fixing inline if the verdict is changes requested.
 
 **Skip it:** Minor bug fixes, documentation typos, cosmetic changes, urgent hotfixes, decisions that are easily reversible within a week.
 
