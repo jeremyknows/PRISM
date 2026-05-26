@@ -227,6 +227,8 @@ Mode-specific procedures live in `references/` and are loaded on demand via Step
 - `references/supply-chain-incident-review.md` — Supply-chain incident overlay (referenced from Step 1b when an active compromise is in progress)
 - `references/open-pr-command-deck-review.md` — Use when the operator asks to open a PR and run extended PRISM while the current agent is acting as command deck; covers PR body boundaries, reviewer panel, synthesis comment, and patch/re-review follow-up lanes.
 - `references/semantic-blockers-vs-verification-pass.md` — Use when an Extended PRISM has clean command verification but specialist panels prove semantic/contract blockers; command PASS does not override NEEDS_WORK findings.
+- `references/trust-boundary-grant-review.md` — Use when reviewing grants, descriptor allowlists, source registration, capability matrices, Memory Seam policy surfaces, or any context/data exposure gate; fail-open grants, collapsed denial semantics, and arbitrary reportable reason text are blockers.
+- `references/pipeline-readiness-review.md` — Use when PRISMing an operational/data pipeline before a larger smoke/canary/scale-up; covers report-safe artifacts, scoring fairness, runbook/script drift, operator UX, budget/rate-limit guardrails, and larger-smoke readiness verdicts.
 
 ---
 
@@ -488,6 +490,8 @@ A Tier 1 finding from any reviewer outranks a Tier 3 finding from Security.
 **High value:** Architecture decisions, security-sensitive changes, major refactors (>1000 lines), open source releases, decisions you'll live with for 6+ months, and operational state reviews before advancing gates/canaries/production routes.
 
 **Contract semantics checkpoint:** If the review subject changes a load-bearing enum/field, provider boundary, routing scope, or persisted schema, first ask whether the field's semantic axis is settled. If an implementation would silently choose between topology, delivery surface, identity, or transport meanings, read `references/contract-semantics-decision-notes.md` and produce/link a bounded decision note before code.
+
+**Trust-boundary grant checkpoint:** If the review subject changes grants, descriptor allowlists, source registration, capability matrices, Memory Seam policy surfaces, or any mechanism that decides which context/data can be exposed, read `references/trust-boundary-grant-review.md`. Passing tests and a mergeable PR are not enough: fail-open grants, collapsed denial semantics, or reportable arbitrary reason text are semantic blockers and should produce `NEEDS WORK` until fixed.
 
 **Operational-state reviews:** When PRISMing current operations (not a code diff), read `references/operational-state-review.md` first. This covers precise gate language, active incident constraints, supply-chain-safe command posture, and reviewed-hold vs closure decisions.
 
