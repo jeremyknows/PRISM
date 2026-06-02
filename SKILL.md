@@ -191,7 +191,7 @@ if [ -f "$REVIEW_FILE" ]; then
   REVIEW_FILE="$WORKSPACE/analysis/prism/<topic-slug>/$(date -u '+%Y-%m-%dT%H%M%SZ')-review.md"
 fi
 # Optional: emit completion signal for your runtime
-# OpenClaw: bash ~/atlas/shared/scripts/util/sub-agent-complete.sh "prism-<slug>" "na" "PRISM review complete" "<originating_channel_id>"
+# OpenClaw: bash <shared-scripts>/util/sub-agent-complete.sh "prism-<slug>" "na" "PRISM review complete" "<originating_channel_id>"
 # CC/Cowork: completion is implicit — the synthesis output IS the result
 ```
 
@@ -567,7 +567,7 @@ See `references/example-review.md` for a complete v2 review transcript.
 | Dependency | Required? | Notes |
 |------------|-----------|-------|
 | Parallel agent spawn | Required | Agent tool (Cowork), Task tool (CC), `sessions_spawn` (OpenClaw). No valid params: `model=`, `max_depth=`, `timeout_minutes=` — model goes in task prompt. |
-| Completion signal | Optional | Runtime-specific. OpenClaw: `~/atlas/shared/scripts/util/sub-agent-complete.sh`. CC/Cowork: completion is implicit. |
+| Completion signal | Optional | Runtime-specific. OpenClaw: `<shared-scripts>/util/sub-agent-complete.sh`. CC/Cowork: completion is implicit. |
 | `qmd` | Optional | Search-enhanced context for reviewers. Falls back to grep if absent. |
 | Archive directory | Required | `analysis/prism/<slug>/` — created automatically by orchestrator |
 

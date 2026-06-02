@@ -70,9 +70,9 @@ checksums.sha256                   # all artifacts
 
 Broad summaries should use local candidate refs and aggregates. Full raw joins stay restricted and TTL-bound.
 
-## Dispatch / completion receipt
+## Delegation / completion receipt
 
-For Command Deck-style lanes, Dispatch-back should include:
+For multi-lane orchestration, the completion report should include:
 - TASK_ID;
 - verdict (`PASS`/`HOLD`);
 - artifact path and archive path;

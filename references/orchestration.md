@@ -63,7 +63,7 @@ if [ -f "$REVIEW_FILE" ]; then
   REVIEW_FILE="$WORKSPACE/analysis/prism/<topic-slug>/$(date -u '+%Y-%m-%dT%H%M%SZ')-review.md"
 fi
 # OpenClaw only: emit completion signal
-# bash ~/atlas/shared/scripts/util/sub-agent-complete.sh "prism-<slug>" "na" "PRISM review complete" "<thread_id>"
+# bash <shared-scripts>/util/sub-agent-complete.sh "prism-<slug>" "na" "PRISM review complete" "<thread_id>"
 ```
 
 ---

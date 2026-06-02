@@ -24,7 +24,7 @@ It is not needed when running PRISM in Claude Code or Cowork.
 
 Archive completion via:
 ```bash
-bash ~/atlas/shared/scripts/util/sub-agent-complete.sh "prism-<slug>" "na" "PRISM review of <slug> complete" "<originating_thread_or_channel_id>"
+bash <shared-scripts>/util/sub-agent-complete.sh "prism-<slug>" "na" "PRISM review of <slug> complete" "<originating_thread_or_channel_id>"
 ```
 
 The 4th argument routes the notice back to the Discord thread/channel where PRISM was initiated.
@@ -33,5 +33,5 @@ The 4th argument routes the notice back to the Discord thread/channel where PRIS
 
 After a PRISM run, log outcome:
 ```bash
-bash ~/.openclaw/agents/main/workspace/scripts/log-skill-run.sh "prism" "<outcome>"
+bash <openclaw-runtime>/agents/main/workspace/scripts/log-skill-run.sh "prism" "<outcome>"
 ```
