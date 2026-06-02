@@ -34,7 +34,7 @@ Architecture decisions with "add a layer" instinct; prior PRISMs where simplicit
 - **Wiki mode:** `"PRISM this wiki"` invokes Technical Accuracy + Completeness + DA reviewers
 - **Typed modes:** First step toward mode-based reviewer selection (wiki vs standard vs budget)
 - **Post-verdict actions:** Defined APPROVE/AWC/NEEDS WORK/REJECT behavior for autonomous pipeline
-- **File access constraints:** Reviewer prompts now scope reads to `~/atlas/` and `~/projects/` only
+- **File access constraints:** Reviewer prompts now scope reads to `<workspace>/` and `~/projects/` only
 - **DA isolation hardening:** Wiki DA explicitly blocked from reading `analysis/prism/` archives
 - **Atlas Fitness questions:** DA now checks actionability in current Atlas phase + QMD safety
 - **Semantic prior-review search:** Step 2 now runs QMD search as a mandatory second pass (catches adjacent topics with different slugs)

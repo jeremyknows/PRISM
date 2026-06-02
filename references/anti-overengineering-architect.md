@@ -63,8 +63,7 @@ The elevation ensures premise-level questions are answered explicitly, even if t
 - **Premise validity** — IS THE PREMISE VALID / PARTIALLY VALID / NOT VALID
 - **Simpler alternative** — the 30–90 min intervention proposed, or "none identified"
 
-This section is not a summary of Consensus/Contentious. It is a standalone premise-check that informs the verdict directly.<!-- atlas-private:start --> Evidence: two consecutive `--simplicity` runs (gbrain-wiki-retrieval 2026-05-10, master-baton-audit-and-registry 2026-05-10) where the Anti-OE finding became the Tier-1 cross-validated centerpiece but would have been buried without dedicated surfacing.<!-- /atlas-private:end -->
-
+This section is not a summary of Consensus/Contentious. It is a standalone premise-check that informs the verdict directly.
 Add this note to the synthesis header when `--simplicity` is active:
 ```
 **Flag active:** `--simplicity` — Simplicity Advocate + Anti-OE Architect findings
@@ -87,18 +86,6 @@ Premise Audit section active (see before Final Verdict).
 - Time-sensitive reviews where +1 reviewer cost isn't justified
 
 ## Canonical Example
-
-<!-- atlas-private:start -->
-**Run:** GBrain Wiki Retrieval Architecture PRISM, 2026-05-10
-**Synthesis archive:** `~/atlas/agents/terminal/analysis/prism/gbrain-wiki-retrieval-architecture/2026-05-10-review.md`
-
-**Finding elevated by this role (T2 → T1 via cross-validation):**
-"Zero production callers of `wiki.search()` / `memory.recall()` — confirmed via independent grep by DA, Anti-OE Architect, Verification Auditor, and Integration Engineer. The eval optimization debate is premature: we're optimizing infrastructure with no users yet."
-
-**Impact:** Load-bearing reason to REJECT Option B (4-7h BM25 implementation) and APPROVE Option C (90-min curation/tagging MVP) instead.
-
-**Without `--simplicity`:** DA surfaced the no-callers observation. Anti-OE Architect was the structural amplifier — its premise-level "should we build this?" framing made 3 other reviewers grep independently to verify, elevating it from a single DA observation to a cross-validated T1.
-<!-- /atlas-private:end -->
 
 **Simplicity-Weighting Observation (verbatim from synthesis §):**
 > "Two simplicity-focused reviewers instead of one. The Anti-OE Architect was framed with a wider 'is this the right problem?' lens vs Simplicity Advocate's standard 'what can we cut?' lens. Did they surface different angles, or were they redundant? DIFFERENT and complementary."

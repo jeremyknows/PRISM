@@ -332,7 +332,7 @@ Memory entries are extracted from review synthesis, meaning they contain distill
 
 ### Bootstrap: Write-Only Accumulation Period
 
-New brand slugs run in `accumulating` mode for the first 3 reviews. Memory is extracted and written but NOT injected into reviewers. After review #3, Watson flags the file for human curation. Only after curation approval does `memory_status` flip to `active`.
+New brand slugs run in `accumulating` mode for the first 3 reviews. Memory is extracted and written but NOT injected into reviewers. After review #3, the agent flags the file for human curation. Only after curation approval does `memory_status` flip to `active`.
 
 Brand memory file header:
 ```
@@ -372,7 +372,7 @@ The `[no brand ref]` warning on Brand Resonance Critic findings is **permanent**
 Run extraction when:
 - A review is submitted and no memory file exists for this brand
 - Memory file's newest entry is 90+ days old
-- `review_count % 3 == 0` (Watson auto-triggers curation job)
+- `review_count % 3 == 0` (auto-triggers curation job)
 
 Batch 3 synthesis docs per extraction call rather than running after every review.
 

@@ -36,7 +36,7 @@ PRISM tracks how many times a finding appears — repeat findings escalate autom
 | Wiki support | Standard mode only | **Wiki Mode** — dedicated 3-reviewer path (Accuracy, Completeness, DA) |
 | Reviewer count | 5 specialists | **6 specialists** — adds Blast Radius Reviewer |
 | Blast Radius | Folded into Integration | **Dedicated reviewer** — catches cross-system coupling, stale references |
-| Install path | `~/.openclaw/skills/` | **`~/.claude/skills/`** (Claude Code native) |
+| Install path | `<openclaw-runtime>/skills/` | **`~/.claude/skills/`** (Claude Code native) |
 | Autoresearch data | In SKILL.md | Moved to `references/openclaw.md` |
 
 ## What's New in v2
