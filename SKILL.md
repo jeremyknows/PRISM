@@ -46,6 +46,8 @@ Every finding must cite a specific file, line, or command output. Assertions wit
 | **Extended** | "Full PRISM audit" / "Deep audit" | 8+ agents (Standard + Code Reviewers + Verification) | ~$2.00–4.00 |
 | **Sprint** | "PRISM sprint on \<repo\>" / "sprint PRISM" / "code review sprint" | 3–6 per issue, sequential | ~$0.40–1.50/issue |
 
+Creative mode also applies to **creative systems/specs** (format frameworks, generator designs, campaign operating models), not just finished assets. In those reviews, cite spec sections plus current source-kit/implementation files, and explicitly pressure-test format-native narrative roles, anti-drift brand rails, and delight coverage.
+
 **Options:** `--opus` (critical decisions), `--haiku` (fast checks), `--governance` (surface stuck findings), `--simplicity` (2 simplicity reviewers — use when proposal has pro-complexity bias; +$1.50–2/run)
 
 **`--simplicity` flag:** Spawns the standard Simplicity Advocate **plus** a new **Anti-Overengineering Architect** (prompt: `references/anti-overengineering-architect.md`). The Advocate asks "what can we cut?" (engine-level). The Architect asks "is this the right problem to solve right now?" (premise-level). Both reviewers' findings must surface explicitly in Consensus or Contentious Points — they cannot be buried by standard role-priority ordering (Simplicity is normally lowest tier). Default: off. Cost: +$1.50–2/run.
