@@ -80,6 +80,8 @@ Then write a cross-cycle synthesis with:
 - “For any live provider path, service/auth boundary should precede provider preference.”
 - “Writes are a separate roadmap unless read-side usefulness and rollback are already boring.”
 - “Gate promotion should be incremental and evidence-classed, not broad.”
+- “For issue-railed overnight/autopilot work, do not create a 60–80 issue backlog just because the roadmap has that many possible slices. Prefer a small active tranche (often 6–10 issues) plus a planning artifact for later waves; later waves should be created only after the verifier for the current tranche passes.”
+- “If an existing cron/autopilot prompt is hard-coded to a current issue range, new issues outside that range are not automatically safe for it to consume. Require an updated/restarted successor prompt with the exact next issue list before claiming the rail is ready.”
 
 ## Pitfalls
 

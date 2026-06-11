@@ -585,6 +585,8 @@ See `references/example-review.md` for a complete v2 review transcript.
 
 ## Known Limitations & Gotchas
 
+0. **Verify-only cold reads need artifact discovery before verdicts.** When Dispatch/operator asks for a "verify-only", "cold Round-3", or "different model class" review after prior PRISM rounds, first locate the exact design artifact or versioned packet from live sources (repo docs, issue/PR text, thread packet, bus event). If the named version/doc is not present, say that explicitly and scope the verdict to the checked-in/current artifacts actually reviewed. Do not infer an out-of-band design from summaries. For write/custody, trust-boundary, contract, or schema reviews, add a mechanical cross-artifact vocabulary/constant check where possible (e.g. approval model vs operation fixtures vs rollback/audit fixtures); passing focused tests does not override semantic enum drift.
+
 1. **DA independence is trust-based, not enforced.** The DA runs in an isolated session with no archive access by design — but nothing technically prevents it from searching. The value comes from prompt discipline, not technical controls.
 
 2. **Synthesis is a telephone game risk.** When you synthesize 6 reviewer outputs in prose, you paraphrase and lose fidelity — LangGraph benchmarks show ~50% degradation in supervisor-mediated aggregation. Prefer quoting reviewer verdicts directly in the synthesis table rather than restating them. If a reviewer's finding is final and complete, forward the exact wording, don't summarize it.
