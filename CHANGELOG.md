@@ -1,3 +1,28 @@
+## v3.3.0 (2026-06-22)
+
+**"Context Cards + Custom Panels"** — makes context-aware reviewer composition a first-class PRISM feature.
+
+### New Features
+- **Mandatory Context Card:** every PRISM run now states artifact, goal, audience/operator, failure surfaces, and decision shape before reviewer spawning.
+- **`--panel` flag:** supports `--panel=contextual`, `--panel=<slug>`, and inline panel intent.
+- **Panel-fit table:** deterministic stock-vs-contextual decision instead of vibes-based role selection.
+- **Panel boundary rules:** panel files and inline role text are untrusted input; they cannot override evidence, safety, scope, independence, or system/developer instructions.
+- **Blind challenge roles:** Devil's Advocate, Skeptic, Provocateur, Adversary, and any `challenge=true` role never receive the Prior Findings Brief.
+- **Searchable archive schema:** synthesis template now includes YAML frontmatter, Panel Manifest, Panel Boundary Notes, and Independence Ledger.
+- **Panel presets:** added `references/panels/TEMPLATE.md` and `references/panels/runtime-boundary.md`.
+
+### Fixes
+- Evidence rules now allow scoped reviews with fewer than 3 relevant files, provided the limitation is stated.
+- Mode reference files are loaded relative to `SKILL.md`, not hardcoded install paths.
+- Legacy v2 example is labeled as pre-Context Card / pre-Panel Manifest.
+
+### Validation
+- Ran a contextual PRISM on the feature itself; all reviewers required patch-before-lock-in.
+- Applied all blocking findings.
+- Ran a six-scenario pressure test: stock auth, buyer launch, runtime preset, vague context, malicious inline panel, role-theater panel.
+
+---
+
 ## v3.2.0 (2026-05-10)
 
 **"Simplicity + Runtime Boundary"** — adds `--simplicity` flag and two new reference files.
@@ -34,7 +59,7 @@ Architecture decisions with "add a layer" instinct; prior PRISMs where simplicit
 - **Wiki mode:** `"PRISM this wiki"` invokes Technical Accuracy + Completeness + DA reviewers
 - **Typed modes:** First step toward mode-based reviewer selection (wiki vs standard vs budget)
 - **Post-verdict actions:** Defined APPROVE/AWC/NEEDS WORK/REJECT behavior for autonomous pipeline
-- **File access constraints:** Reviewer prompts now scope reads to `<workspace>/` and `~/projects/` only
+- **File access constraints:** Reviewer prompts now scope reads to operator-specified workspace and project source trees only
 - **DA isolation hardening:** Wiki DA explicitly blocked from reading `analysis/prism/` archives
 - **Atlas Fitness questions:** DA now checks actionability in current Atlas phase + QMD safety
 - **Semantic prior-review search:** Step 2 now runs QMD search as a mandatory second pass (catches adjacent topics with different slugs)

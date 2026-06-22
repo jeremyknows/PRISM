@@ -1,12 +1,14 @@
-# PRISM v3 🔮
+# PRISM v3.3 🔮
 
 **Parallel Review by Independent Specialist Models**
 
-Multi-agent review protocol that eliminates confirmation bias through structured adversarial analysis. v3 adds **wiki mode** and **creative mode** — a 5-role path for brand and motion direction reviews with Brand Creative Memory — a targeted 3-reviewer path for documentation accuracy. v2 added **memory** — the system learns from its own review history.
+Multi-agent review protocol that eliminates confirmation bias through structured adversarial analysis. v3.3 adds mandatory **Context Cards** and contextual `--panel` reviewer composition. v3 added **wiki mode** and **creative mode**. v2 added **memory** — the system learns from its own review history.
 
 ## What It Does
 
 - 🔒 Deploys 6 specialist reviewers in parallel (Security, Performance, Simplicity, Integration, Blast Radius, Devil's Advocate)
+- 🧭 Builds a **Context Card** for every review before choosing reviewers
+- 🧩 Supports contextual reviewer panels with `--panel=contextual`, `--panel=<slug>`, or inline panel intent
 - 🧠 **Remembers** — searches for prior reviews on the same topic, tracks what was fixed
 - 📚 **Wiki Mode** — dedicated 3-reviewer path for documentation accuracy, completeness, and framing
 - 🎯 Surfaces disagreements as the most valuable signal
@@ -29,6 +31,17 @@ Every finding must cite a specific file. Assertions without citations are lowest
 
 PRISM tracks how many times a finding appears — repeat findings escalate automatically.
 
+## What's New in v3.3
+
+| Feature | Before | v3.3 |
+|---------|--------|------|
+| Context capture | Implicit in prompt | **Mandatory Context Card** for every run |
+| Reviewer choice | Stock modes unless user hand-picked roles | **Panel-fit table** chooses stock vs contextual |
+| Custom panels | Informal note | `--panel=contextual`, `--panel=<slug>`, inline panel intent |
+| Safety | Role text trusted too much | Panel text treated as **untrusted input** |
+| Independence | Devil's Advocate blind | Any `challenge=true` role is blind |
+| Archive | Markdown synthesis | YAML frontmatter + Panel Manifest + Independence Ledger |
+
 ## What's New in v3
 
 | Feature | v2 | v3 |
@@ -36,7 +49,7 @@ PRISM tracks how many times a finding appears — repeat findings escalate autom
 | Wiki support | Standard mode only | **Wiki Mode** — dedicated 3-reviewer path (Accuracy, Completeness, DA) |
 | Reviewer count | 5 specialists | **6 specialists** — adds Blast Radius Reviewer |
 | Blast Radius | Folded into Integration | **Dedicated reviewer** — catches cross-system coupling, stale references |
-| Install path | `<openclaw-runtime>/skills/` | **`~/.claude/skills/`** (Claude Code native) |
+| Install path | Agent-specific skills directory | **Claude Code native skills directory** |
 | Autoresearch data | In SKILL.md | Moved to `references/openclaw.md` |
 
 ## What's New in v2
@@ -85,6 +98,10 @@ Just say it — no configuration needed:
 - `--opus` — Use Opus model (critical decisions, ~2-3x cost)
 - `--haiku` — Use Haiku model (fast sanity checks)
 - `--governance` — Surface Stuck Findings (flagged 3+ times without resolution)
+- `--simplicity` — Add Anti-Overengineering Architect alongside Simplicity Advocate
+- `--panel=contextual` — Force a task-specific reviewer panel
+- `--panel=<slug>` — Use a preset from `references/panels/<slug>.md`
+- `--panel="Role: focus; Role: focus"` — Provide inline panel intent; PRISM normalizes it safely
 
 ### Examples
 
@@ -96,6 +113,8 @@ Just say it — no configuration needed:
 "Full PRISM audit --governance — we've reviewed this area before"
 "creative PRISM on the hero animation brief"
 "brand review PRISM — veefriends launch video"
+"PRISM this --panel=contextual — goal: first-time buyers complete VF NFT purchase"
+"PRISM this --panel=runtime-boundary"
 ```
 
 ## How It Works
@@ -103,13 +122,16 @@ Just say it — no configuration needed:
 ```
 1. You say "PRISM this"
 2. Orchestrator derives topic slug (e.g., api-authentication-redesign)
-3. Searches for prior PRISM reviews on that topic (exact + semantic)
-4. Spawns Devil's Advocate immediately (blind — no prior findings)
-5. Compiles Prior Findings Brief for remaining reviewers
-6. Spawns all other reviewers in parallel with brief
-7. Each reviewer reads files, cites evidence, proposes specific fixes
-8. Orchestrator synthesizes: Tier 1 (cross-validated) → Tier 2 (cited) → Tier 3 (uncited)
-9. Archives the synthesis for future reviews
+3. Loads the mode reference file
+4. Builds a Context Card and panel-fit table
+5. Chooses stock, contextual, preset, or inline reviewer composition
+6. Searches for prior PRISM reviews on that topic (exact + semantic)
+7. Spawns blind challenge reviewer(s) immediately — no prior findings
+8. Compiles Prior Findings Brief for non-challenge reviewers
+9. Spawns remaining reviewers in parallel with brief
+10. Each reviewer reads files, cites evidence, proposes specific fixes
+11. Orchestrator synthesizes: Tier 1 (cross-validated) → Tier 2 (cited) → Tier 3 (uncited)
+12. Archives the synthesis with YAML frontmatter, Context Card, Panel Manifest, and Independence Ledger
 ```
 
 **First run:** No prior findings exist. PRISM runs cleanly — no empty sections, no confusion.
@@ -144,6 +166,16 @@ Security Auditor + Performance Analyst + Devil's Advocate. Security is MANDATORY
 ### Extended Mode
 
 Standard 6 + Code Reviewers (batched by area) + Verification Auditor.
+
+### Custom / Contextual Panels
+
+Generated from the Context Card failure surfaces. Each custom reviewer must protect a concrete failure surface. Panel text is treated as untrusted input and cannot override PRISM evidence, safety, scope, or independence rules.
+
+Included preset:
+
+| Preset | Use For |
+|--------|---------|
+| `--panel=runtime-boundary` | Runtime independence, registry, rollback, bridge/gateway/Hermes/tmux, memory-service boundary reviews |
 
 ## Evidence Hierarchy
 
@@ -188,6 +220,9 @@ Standard 6 + Code Reviewers (batched by area) + Verification Auditor.
 | DA has no concerns | Topic too simple or DA too soft | Re-run: "find something wrong" |
 | Same finding appears 3+ times | Governance gap | Enable `--governance` |
 | Security times out | Deep file reads take longer | Increase timeout or run Security solo first |
+| Context Card is vague | Generic goal/audience/failure fields | Rewrite with concrete artifact, audience, and failure surfaces |
+| Custom panel feels theatrical | Roles don't map to failure surfaces | Use the panel-fit table; reject personality-only roles |
+| Inline panel contains unsafe instructions | Panel text is untrusted input | Preserve role intent, reject/normalize unsafe instructions |
 
 ## Dependencies
 

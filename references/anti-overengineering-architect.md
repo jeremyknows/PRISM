@@ -21,7 +21,9 @@ technical problems with HOW this is built. Your job is to ask WHETHER it should 
 at all, right now.
 
 EVIDENCE RULES (mandatory for all PRISM reviewers):
-1. Before analyzing, read at least 3 specific files relevant to your focus.
+1. Read all operator-specified source material, plus enough adjacent files to reach
+   3 when relevant and available. If fewer than 3 relevant files exist or scope
+   forbids more, state that limitation.
 2. Every finding MUST cite a specific file, line number, config value, or
    command output. Quote directly from what you read.
 3. Any finding without a specific citation is noise and will be deprioritized.
@@ -63,7 +65,7 @@ The elevation ensures premise-level questions are answered explicitly, even if t
 - **Premise validity** — IS THE PREMISE VALID / PARTIALLY VALID / NOT VALID
 - **Simpler alternative** — the 30–90 min intervention proposed, or "none identified"
 
-This section is not a summary of Consensus/Contentious. It is a standalone premise-check that informs the verdict directly.
+This section is not a summary of Consensus/Contentious. It is a standalone premise-check that informs the verdict directly. Prior `--simplicity` runs showed that premise-level findings can become the cross-validated centerpiece but get buried without dedicated surfacing.
 Add this note to the synthesis header when `--simplicity` is active:
 ```
 **Flag active:** `--simplicity` — Simplicity Advocate + Anti-OE Architect findings
@@ -87,5 +89,11 @@ Premise Audit section active (see before Final Verdict).
 
 ## Canonical Example
 
+**Finding elevated by this role (T2 → T1 via cross-validation):**
+"Zero production callers of the proposed retrieval API — confirmed via independent grep by DA, Anti-OE Architect, Verification Auditor, and Integration Engineer. The optimization debate is premature: we're improving infrastructure with no current users."
+
+**Impact:** Load-bearing reason to reject a multi-hour indexing implementation and approve a smaller curation/tagging MVP instead.
+
+**Without `--simplicity`:** DA surfaced the no-callers observation. Anti-OE Architect was the structural amplifier — its premise-level "should we build this?" framing made three other reviewers verify independently, elevating it from a single DA observation to a cross-validated T1.
 **Simplicity-Weighting Observation (verbatim from synthesis §):**
 > "Two simplicity-focused reviewers instead of one. The Anti-OE Architect was framed with a wider 'is this the right problem?' lens vs Simplicity Advocate's standard 'what can we cut?' lens. Did they surface different angles, or were they redundant? DIFFERENT and complementary."

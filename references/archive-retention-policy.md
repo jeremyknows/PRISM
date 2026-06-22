@@ -34,8 +34,8 @@ When compressing, preserve a summary index:
 A cron job to enforce this policy doesn't exist yet. Until it does, run manually:
 ```bash
 # Check archive size
-du -sh <openclaw-runtime>/agents/main/workspace/analysis/prism/archive/
+du -sh "$WORKSPACE/analysis/prism/archive/"
 
 # Find old reviews
-find <openclaw-runtime>/agents/main/workspace/analysis/prism/archive/ -name "*.md" -mtime +365
+find "$WORKSPACE/analysis/prism/archive/" -name "*.md" -mtime +365
 ```

@@ -4,9 +4,9 @@
 
 ---
 
-Sequential PRISM code reviews across a codebase's PRD slices/issues in build order. Each review runs the standard PRISM protocol, then the orchestrator applies quick fixes inline and delegates the rest to a designated agent (default: Builder). The confirmation gate between issues is intentional — not just synchronization.
+Sequential PRISM code reviews across a codebase's PRD slices/issues in build order. Each review runs the standard PRISM protocol, then the orchestrator applies quick fixes inline and delegates the rest to a designated implementation agent. The confirmation gate between issues is intentional — not just synchronization.
 
-**Production-validated:** VibetownFM 2026-05-07 (7 issues, 9 PRISM reviews including one re-review after Jeremy challenged Budget mode on the primary user-facing issue).
+**Production-validated:** Used on a 7-issue production app sprint with 9 PRISM reviews, including one re-review after Budget mode proved too shallow for the primary user-facing issue.
 
 ---
 
@@ -31,7 +31,7 @@ Premise check:
 - Note any issues partially fixed by later commits
 ```
 
-Post scope to Jeremy before starting if: (a) criticality is ambiguous on 2+ issues, or (b) fix ownership is unclear.
+Post scope to the operator before starting if: (a) criticality is ambiguous on 2+ issues, or (b) fix ownership is unclear.
 
 **Criticality → reviewer depth:**
 | Signal | Reviewer depth |
@@ -43,7 +43,7 @@ Post scope to Jeremy before starting if: (a) criticality is ambiguous on 2+ issu
 | CSS, animations, scene props | Budget (3) |
 | Utility scripts, one-off tools | Budget (3) |
 
-Jeremy can always override with "isn't this the most important part?" — escalate without re-justifying.
+The operator can always override with "isn't this the most important part?" — escalate without re-justifying.
 
 ---
 
@@ -56,14 +56,14 @@ Jeremy can always override with "isn't this the most important part?" — escala
 **3. Synthesize** — Tier by cross-validation: T1 (2+ reviewers cited) → P0/P1; T2 (single cited) → P1/P2; T3 (no citation) → deprioritize.
 
 Assign owner per finding:
-- **The orchestrator applies directly:** < 5 lines, non-architectural, no layout impact. Examples: silent `catch {}`, type mismatch in a single KV call, missing `aria-*`, module-level throw moved inside handler.
+- **Orchestrator applies directly:** < 5 lines, non-architectural, no layout impact. Examples: silent `catch {}`, type mismatch in a single KV call, missing `aria-*`, module-level throw moved inside handler.
 - **Delegate to agent:** Architectural (component wiring, file restructuring), requires build verification, changes multiple files in concert.
 
-**4. Apply the orchestrator's quick fixes** — Edit → build check → commit.
+**4. Apply orchestrator quick fixes** — Edit → build check → commit.
 
 Commit format: `<area>: PRISM #N <label> — <what + why>`
 
-**5. Delegate conditions** — Via `<delegation-script>`. Keep message < 2000 chars (Discord limit — split if needed). Format:
+**5. Send conditions** — Via the local messaging tool. Keep message concise enough for the target channel. Format:
 
 ```
 **PRISM #N — [verdict]** (<slug>, commit <hash>)
@@ -76,7 +76,7 @@ P0 — [agent] owns:
 P1 — same pass:
 2. ...
 
-Full findings: <workspace>/agents/watson/analysis/prism/<slug>/YYYY-MM-DD-review.md
+Full findings: analysis/prism/<slug>/YYYY-MM-DD-review.md
 ```
 
 **6. Confirmation gate** — Wait for agent to post status with ✅ per condition + test count + commit hash. This is the primary signal — **don't advance until you have it**.
@@ -99,4 +99,4 @@ Post summary table to the channel:
 | #N slug | ✅ AWC→Fixed | abc1234 | None |
 ```
 
-Note any remaining Jeremy-only items (domain setup, production credentials, launch QA).
+Note any remaining operator-only items (domain setup, production credentials, launch QA).

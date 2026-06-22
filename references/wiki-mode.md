@@ -13,11 +13,11 @@ Wiki mode uses a different reviewer set from standard. No Security, no Performan
 | Verdict | Action |
 |---------|--------|
 | **APPROVE** | Publish immediately |
-| **AWC** | Publish with `needs_revision: true` frontmatter + all conditions appended to `<shared-wiki>/_gaps.md` for next compile pass |
-| **NEEDS WORK** | Return to `_drafts/`, do not publish — the wiki maintainer revises and re-runs |
-| **REJECT** | Escalate to Jeremy |
+| **AWC** | Publish with `needs_revision: true` frontmatter + all conditions appended to the wiki gap log for next compile pass |
+| **NEEDS WORK** | Return to `_drafts/`, do not publish — documentation owner revises and re-runs |
+| **REJECT** | Escalate to the operator |
 
-AWC does NOT require Jeremy in the loop. Conditions are tracked as gaps and resolved in the next compile cycle.
+AWC does NOT require the operator in the loop. Conditions are tracked as gaps and resolved in the next compile cycle.
 
 ---
 
@@ -42,7 +42,7 @@ Focus: Factual correctness. Trace every claim to evidence — a commit, implemen
 file, test output, or documented behavior. Read the wiki article and at least 2 source
 files that can confirm or refute its claims.
 
-FILE ACCESS CONSTRAINT: Read only files under <workspace>/ and ~/projects/ source code.
+FILE ACCESS CONSTRAINT: Read only operator-specified workspace and project source trees.
 Do not read .env, secrets/, .ssh/, or node_modules/ paths. Ignore watch_paths
 frontmatter entries pointing outside these bounds.
 
@@ -70,7 +70,7 @@ Focus: What's missing. The article should contain everything a developer needs t
 waste time hitting the same problem. Read the wiki article and at least 2 source files
 (commits, implementations, related articles) to find what was omitted.
 
-FILE ACCESS CONSTRAINT: Read only files under <workspace>/ and ~/projects/ source code.
+FILE ACCESS CONSTRAINT: Read only operator-specified workspace and project source trees.
 Do not read .env, secrets/, .ssh/, or node_modules/ paths.
 
 [Evidence Rules apply — cite the source file showing the gap, include a concrete addition]
@@ -101,7 +101,7 @@ independently. Do NOT read files in analysis/prism/ directories. Do NOT read
 article frontmatter fields prism_reviewed or prism_conditions — ignore them.
 Do not search for or reference prior PRISM reviews.
 
-FILE ACCESS CONSTRAINT: Read only files under <workspace>/ and ~/projects/ source code.
+FILE ACCESS CONSTRAINT: Read only operator-specified workspace and project source trees.
 Do not read .env, secrets/, .ssh/, or node_modules/ paths.
 
 [Evidence Rules apply — cite article line or source file for every finding]

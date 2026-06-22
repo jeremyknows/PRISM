@@ -1,6 +1,6 @@
-# Example PRISM v2 Review: Option C Architecture Decision
+# Legacy Example PRISM v2 Review: Option C Architecture Decision
 
-Real review from March 2026 — second PRISM review of this topic, demonstrating v2 memory features.
+Real review from March 2026 — second PRISM review of this topic, demonstrating v2 memory features. This predates v3.3 Context Card, Panel Manifest, YAML frontmatter, and Independence Ledger requirements.
 
 ## Review Setup
 
