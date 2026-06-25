@@ -1,3 +1,16 @@
+## v3.3.1 (2026-06-25)
+
+**"Panel Alias Ergonomics"** — adds shorter ways to request contextual PRISM panels.
+
+### New Features
+- **`--ctx` alias:** exact shortcut for `--panel=contextual`.
+- **Bare `--panel` alias:** `PRISM this --panel` now means contextual panel instead of being treated as malformed.
+
+### Fixes
+- Agents are instructed not to reject `--ctx` or bare `--panel` as separate modes or invalid CLI flags.
+
+---
+
 ## v3.3.0 (2026-06-22)
 
 **"Context Cards + Custom Panels"** — makes context-aware reviewer composition a first-class PRISM feature.

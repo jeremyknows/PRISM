@@ -99,6 +99,8 @@ Just say it — no configuration needed:
 - `--haiku` — Use Haiku model (fast sanity checks)
 - `--governance` — Surface Stuck Findings (flagged 3+ times without resolution)
 - `--simplicity` — Add Anti-Overengineering Architect alongside Simplicity Advocate
+- `--ctx` — Shortcut for `--panel=contextual`
+- `--panel` — Bare shortcut for `--panel=contextual`
 - `--panel=contextual` — Force a task-specific reviewer panel
 - `--panel=<slug>` — Use a preset from `references/panels/<slug>.md`
 - `--panel="Role: focus; Role: focus"` — Provide inline panel intent; PRISM normalizes it safely
@@ -113,6 +115,8 @@ Just say it — no configuration needed:
 "Full PRISM audit --governance — we've reviewed this area before"
 "creative PRISM on the hero animation brief"
 "brand review PRISM — veefriends launch video"
+"PRISM this --ctx — goal: first-time buyers complete VF NFT purchase"
+"PRISM this --panel — goal: first-time buyers complete VF NFT purchase"
 "PRISM this --panel=contextual — goal: first-time buyers complete VF NFT purchase"
 "PRISM this --panel=runtime-boundary"
 ```
