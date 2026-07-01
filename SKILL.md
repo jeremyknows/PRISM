@@ -32,6 +32,8 @@ When 4/5 reviewers agree and 1 dissents, pay attention to that dissent.
 
 Every finding must cite a specific file, line, or command output. Assertions without citations are lowest priority.
 
+> **If the executor is Claude Fable 5:** the Evidence Rules + reviewer-independence below are load-bearing — keep them. But Fable 5 dispatches parallel subagents natively, so treat the step-by-step Orchestrator Checklist as *guidance*, not a rigid script; don't over-serialize what Fable does well. Context: wiki `prompting-fable-5`.
+
 ## How to Invoke PRISM
 
 **Just say it — no configuration needed:**
