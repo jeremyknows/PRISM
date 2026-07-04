@@ -1,3 +1,17 @@
+## v3.4.0 (2026-07-04)
+
+**"Cross-Vendor Panel"** — optional overlay adding non-Claude reviewers via OpenRouter to any panel, closing the single-model-family blind-spot gap flagged in [issue #2](https://github.com/jeremyknows/PRISM/issues/2).
+
+### New Features
+- **`references/cross-vendor-panel.md`:** overlay doc — when to use it, default vendor roster (Grok, Gemini, DeepSeek, GLM, Kimi via OpenRouter), and how it plugs into the existing fan-out+union synthesis unchanged (no judge/blending step).
+- **`scripts/cross-vendor-review.sh`:** calls one OpenRouter model with a reviewer prompt, hard-fails on empty content (reasoning-heavy variants can silently burn their budget) instead of passing an empty finding through.
+- **SKILL.md:** Step 1b cross-vendor overlay pointer, Known Limitations #9, and a Model Selection Guide pointer — all Claude-only tiering rows now note that cross-vendor is the fix for shared-model-family blind spots.
+
+### Why
+Confirmed on a planted-bug fixture in the source issue: 6-vendor union caught 9/9 known bugs vs. 7/9 for the best single vendor (Claude sonnet) alone, including one null-deref bug caught only by Gemini. PRISM's synthesis was already fan-out+union, not a consensus judge — the gap was that every reviewer, at every tier, was the same vendor.
+
+---
+
 ## v3.3.1 (2026-06-25)
 
 **"Panel Alias Ergonomics"** — adds shorter ways to request contextual PRISM panels.

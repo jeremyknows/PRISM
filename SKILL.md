@@ -11,11 +11,11 @@ license: MIT
 compatibility: Works with any agent that can spawn subagents or run sequential reviews
 metadata:
   author: jeremyknows
-  version: "3.3.1"
+  version: "3.4.0"
   category: Code Quality & Review
   health_score: "10/12"
   status: STABLE
-  last_improved: "2026-06-25"
+  last_improved: "2026-07-04"
 ---
 
 # PRISM v3.3 — Parallel Review by Independent Specialist Models
@@ -139,6 +139,8 @@ Identify the mode from the invocation phrase. Before spawning any reviewer, expl
 - **Sprint** → `Read references/sprint-mode.md`
 
 **Supply-chain incident overlay:** If the user mentions an active package/npm/PyPI/supply-chain compromise, or asks whether operations are exposed, also read `references/supply-chain-incident-review.md` before spawning reviewers. In reviewer prompts, explicitly prohibit dependency mutation and package-script execution unless the operator has cleared it. Package scripts (`npm run build`, `npm run typecheck`, etc.) are code execution through the local dependency tree; during incident windows they need their own approval gate, not just “no install/update.”
+
+**Cross-vendor overlay:** If the operator asks for a multi-model, cross-vendor, or "second opinion from a different model family" panel, or the review is high-stakes enough that a single-vendor blind spot would be expensive to miss, also read `references/cross-vendor-panel.md` before spawning reviewers. Adds non-Claude reviewers (via OpenRouter) alongside the stock Claude roster — same fan-out+union synthesis, no judge/blending step.
 
 If the reference file is not found: halt and warn: *"⚠️ Mode reference file missing — cannot spawn reviewers safely."*
 
@@ -730,6 +732,8 @@ See `references/example-review.md` for a legacy v2 review transcript. It predate
 
 8. **Stalled findings have no escalation mechanism without `--governance`.** Findings flagged 3+ times across reviews without resolution need explicit human escalation. Use `--governance` flag to surface them; don't assume they'll self-resolve.
 
+9. **Every reviewer shares one model family by default.** Standard/Extended/Budget/Contextual panels are all Claude subagents varying only by tier (sonnet/haiku/opus) — cross-validation (Tier 1) can't catch a blind spot every reviewer inherits from the same vendor. Confirmed on a planted-bug fixture: a 6-vendor cross-vendor union caught 9/9 known bugs vs. 7/9 for the best single vendor, including one bug (a null-deref) caught by exactly one non-Claude vendor and missed by Claude and everyone else. See `references/cross-vendor-panel.md` for the optional overlay — same fan-out+union synthesis, no judge/blending step, ~$0.07 for 6 added vendors on fixture-scale artifacts.
+
 ---
 
 ## Model Selection Guide
@@ -745,6 +749,8 @@ See `references/example-review.md` for a legacy v2 review transcript. It predate
 
 Use `--opus` for: decisions with >$10K impact, security-critical releases, or when DA finds a potential fatal flaw worth deep investigation.
 Use `--haiku` (full budget mode) for: routine checks on well-understood code, fast pre-PR sanity checks.
+
+All rows above vary Claude model tier only. For reviews where a single-vendor blind spot would be expensive to miss, add cross-vendor reviewers on top of this roster — see `references/cross-vendor-panel.md` and Known Limitations #9.
 
 ---
 
