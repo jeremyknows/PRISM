@@ -1,7 +1,8 @@
 # PRISM Archive Retention Policy
 
 ## Current State (2026-03-18)
-- Archive location: `analysis/prism/archive/`
+- Archive location: `analysis/prism/<slug>/` (one directory per review topic; there is no
+  single flat `archive/` directory — verified live, current convention)
 - Growth rate: ~30KB/day at current usage
 - 6-month projection: ~5.4MB (manageable)
 
@@ -33,9 +34,9 @@ When compressing, preserve a summary index:
 
 A cron job to enforce this policy doesn't exist yet. Until it does, run manually:
 ```bash
-# Check archive size
-du -sh "$WORKSPACE/analysis/prism/archive/"
+# Check archive size (across all per-topic directories)
+du -sh "$WORKSPACE/analysis/prism/"
 
-# Find old reviews
-find "$WORKSPACE/analysis/prism/archive/" -name "*.md" -mtime +365
+# Find old reviews (across all per-topic directories)
+find "$WORKSPACE/analysis/prism/" -name "*.md" -mtime +365
 ```
