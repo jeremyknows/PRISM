@@ -58,4 +58,4 @@ Roughly Nx a single-vendor review pass for N cross-vendor reviewers added. On th
 
 ## Dependency
 
-`OPENROUTER_API_KEY` — `scripts/cross-vendor-review.sh` reads it from the environment if set, otherwise falls back to 1Password (`openrouter-api-key-main`, vault `Shared with Watson`). Not a hard PRISM dependency — panels without this key simply skip the overlay and run single-vendor, same as today.
+`OPENROUTER_API_KEY` — `scripts/cross-vendor-review.sh` reads it from the environment. The retired `openrouter-api-key-main` / `openrouter-api-main` 1Password aliases are not fallback sources. This is not a hard PRISM dependency: panels without the key skip the overlay and run single-vendor.

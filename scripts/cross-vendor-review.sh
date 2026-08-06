@@ -4,7 +4,6 @@
 #
 # Usage:
 #   OPENROUTER_API_KEY=... cross-vendor-review.sh <model> <prompt-file> [output-file]
-#   cross-vendor-review.sh <model> <prompt-file> [output-file]   # falls back to 1Password
 #
 # <model> is an OpenRouter model id, e.g.:
 #   x-ai/grok-4
@@ -32,11 +31,7 @@ if [ ! -f "$PROMPT_FILE" ]; then
 fi
 
 if [ -z "${OPENROUTER_API_KEY:-}" ]; then
-  OPENROUTER_API_KEY="$(op item get "openrouter-api-key-main" --vault "Shared with Watson" --fields credential --reveal 2>/dev/null || true)"
-fi
-
-if [ -z "${OPENROUTER_API_KEY:-}" ]; then
-  echo "ERROR: OPENROUTER_API_KEY not set and 1Password lookup failed (openrouter-api-key-main / Shared with Watson vault)." >&2
+  echo "ERROR: OPENROUTER_API_KEY is not set; the optional cross-vendor overlay is unavailable." >&2
   exit 1
 fi
 

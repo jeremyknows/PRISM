@@ -1,3 +1,9 @@
+## v3.4.1 (2026-08-06)
+
+**OpenRouter credential cleanup** — retired the deleted `openrouter-api-key-main` / `openrouter-api-main` 1Password fallbacks. The optional cross-vendor overlay now requires an explicitly injected `OPENROUTER_API_KEY`.
+
+---
+
 ## v3.4.0 (2026-07-04)
 
 **"Cross-Vendor Panel"** — optional overlay adding non-Claude reviewers via OpenRouter to any panel, closing the single-model-family blind-spot gap flagged in [issue #2](https://github.com/jeremyknows/PRISM/issues/2).
