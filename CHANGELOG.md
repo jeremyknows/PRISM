@@ -1,3 +1,9 @@
+## v3.4.2 (2026-08-07)
+
+**Reviewer-process cleanup closeout step** — archive section now mandates killing reviewer tmux panes after synthesis (verify harvest → `tmux kill-pane` by pane-id, own pane preserved). Two consecutive nights of 16h+ orphaned reviewer panes at nonzero CPU, caught only by session-hygiene sweeps; orphaned panes also block future subagent spawns.
+
+---
+
 ## v3.4.1 (2026-08-06)
 
 **OpenRouter credential cleanup** — retired the deleted `openrouter-api-key-main` / `openrouter-api-main` 1Password fallbacks. The optional cross-vendor overlay now requires an explicitly injected `OPENROUTER_API_KEY`.

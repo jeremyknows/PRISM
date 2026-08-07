@@ -282,6 +282,8 @@ Every archived synthesis must include searchable YAML frontmatter, the resolved 
 
 If the write fails, warn the user: *"⚠️ Archive write failed — this review won't be available for future PRISM runs."*
 
+**Reviewer-process cleanup (mandatory closeout step):** after the synthesis is archived, kill any tmux panes/sessions spawned for reviewer lanes — verify harvest first (the archive contains every lane's findings), then `tmux kill-pane` each reviewer pane by pane-id, preserving your own. War story: two consecutive nights (2026-08-06/07) Terminal's PRISM reviewer panes sat 16+ hours at nonzero CPU after their lanes were fully synthesized, until session-hygiene sweeps flagged them; orphaned panes also block future subagent spawns ("no space for new pane").
+
 ---
 
 ## Mode Reference Files
