@@ -1,12 +1,6 @@
 ---
 name: prism
-description: |
-  Use PRISM when: (1) reviewing an architecture decision, security-sensitive change, or major
-  refactor (>500 lines), (2) making a decision you'll live with for 6+ months, (3) preparing
-  an open source release, (4) you want structured adversarial analysis to eliminate groupthink,
-  (5) verifying the accuracy and completeness of a wiki article before publishing.
-  NOT FOR: minor bug fixes, documentation typos, cosmetic changes, urgent hotfixes, or any
-  decision reversible within a week.
+description: "Use PRISM for architecture decisions, security-sensitive changes, refactors over ~500 lines, decisions you'll live with 6+ months, open-source releases, or verifying a wiki article before publishing. Not for minor fixes, typos, hotfixes, or anything reversible within a week."
 license: MIT
 compatibility: Works with any agent that can spawn subagents or run sequential reviews
 metadata:
